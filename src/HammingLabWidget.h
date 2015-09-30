@@ -33,8 +33,11 @@ private:
     QProgressBar *progressBar;
 
     void createLayouts();
-    void createControlLayout(QLayout *mainLayout);
-    void createStatisticsLayout(QLayout *mainLayout);
+    QGroupBox * createInputLayout();
+    QGroupBox * createControlLayout();
+    QGroupBox * createStatisticsLayout();
+    QGroupBox * createConclusionLayout();
+    QGroupBox * createStatusBarLayout();
     std::string boolArrayToString(std::vector<bool> &array);
     std::vector<bool> parseInformationMessageText(const QString &text);
 

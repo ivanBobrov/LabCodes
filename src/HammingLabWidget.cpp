@@ -2,6 +2,7 @@
 
 HammingLabWidget::HammingLabWidget() {
     createLayouts();
+
     eventEmitter = new HammingLabEventEmitter; //TODO: destructor
     qRegisterMetaType<HammingLabResult>("HammingLabResult");
     QObject::connect(eventEmitter, SIGNAL(startProcessSignal()), this, SLOT(onStartProcess()));
@@ -113,30 +114,37 @@ void HammingLabWidget::onAttemptsCountLineEditChanged() {
 }
 
 void HammingLabWidget::createLayouts() {
-    QHBoxLayout *mainLayout = new QHBoxLayout;
+    QGridLayout *mainLayout = new QGridLayout;
 
-    createControlLayout(mainLayout);
-    createStatisticsLayout(mainLayout);
+    mainLayout->addWidget(createInputLayout(), 0, 0, 1, 1);
+    mainLayout->addWidget(createControlLayout(), 1, 0, 1, 1);
+    mainLayout->addWidget(createStatisticsLayout(), 2, 0, 1, 1);
+    mainLayout->addWidget(createConclusionLayout(), 3, 0, 1, 1);
+    mainLayout->addWidget(createStatusBarLayout(), 5, 0, 1, 1);
+
+    //mainLayout->setRowStretch(4, 1);
 
     this->setLayout(mainLayout);
 }
 
-void HammingLabWidget::createControlLayout(QLayout *mainLayout) {
-    //TODO: docs
-    QGroupBox *controlGroupBox = new QGroupBox("Исходные данные");
-    QVBoxLayout *controlLayout = new QVBoxLayout;
+QGroupBox * HammingLabWidget::createInputLayout() {
+    // Group box and layout for input text edits
+    QGroupBox *inputGroupBox = new QGroupBox("1. Введите исходные данные");
+    QFormLayout *inputLayout = new QFormLayout;
 
-
-    QFormLayout *inputParametersLayout = new QFormLayout;
+    //Creating line edits for layout TODO: what's about freeing memory of validators? Or any other created object?
     informationMessageLineEdit = new QLineEdit("10101");
-    QRegExp informRegExp("[01]{1,16}");
-    informationMessageLineEdit->setValidator(new QRegExpValidator(informRegExp));
     probabilityLineEdit = new QLineEdit("0.0001");
-    QRegExp probabilityRegExp("0\\.\\d{0,9}");
-    probabilityLineEdit->setValidator(new QRegExpValidator(probabilityRegExp));
     attemptsCountLineEdit = new QLineEdit("5000000");
+
+    QRegExp informationLineEditRegExp("[01]{1,16}");
+    QRegExp probabilityLineEditRegExp("0\\.\\d{0,9}");
+
+    informationMessageLineEdit->setValidator(new QRegExpValidator(informationLineEditRegExp, this));
+    probabilityLineEdit->setValidator(new QRegExpValidator(probabilityLineEditRegExp, this));
     attemptsCountLineEdit->setValidator(new QIntValidator(1, 1000000000, this));
 
+    //Connecting line edits signals with slots
     QObject::connect(informationMessageLineEdit, SIGNAL(textChanged(QString)),
                      this, SLOT(onInformationLineEditChanged(QString)));
     QObject::connect(probabilityLineEdit, SIGNAL(editingFinished()),
@@ -144,14 +152,28 @@ void HammingLabWidget::createControlLayout(QLayout *mainLayout) {
     QObject::connect(attemptsCountLineEdit, SIGNAL(editingFinished()),
                      this, SLOT(onAttemptsCountLineEditChanged()));
 
-    inputParametersLayout->addRow("Информационное сообщение", informationMessageLineEdit);
-    inputParametersLayout->addRow("Вероятность искажения элемента", probabilityLineEdit);
-    inputParametersLayout->addRow("Количество передач информации", attemptsCountLineEdit);
+    //Adding line edits to layout
+    inputLayout->addRow("Информационное сообщение", informationMessageLineEdit);
+    inputLayout->addRow("Вероятность искажения элемента", probabilityLineEdit);
+    inputLayout->addRow("Количество передач информации", attemptsCountLineEdit);
 
-    controlLayout->addLayout(inputParametersLayout);
+    //Set layout to group box
+    inputGroupBox->setLayout(inputLayout);
+    inputGroupBox->setMinimumSize(430, 125);
+    inputGroupBox->setMaximumSize(500, 180);
 
+    return inputGroupBox;
+}
 
+QGroupBox * HammingLabWidget::createControlLayout() {
+    //Create group box and layout for control buttons
+    QGroupBox *controlGroupBox = new QGroupBox("2. Начать работу");
+    QVBoxLayout *controlLayout = new QVBoxLayout;
+
+    //Layout for button
     QHBoxLayout *controlButtonLayout = new QHBoxLayout;
+
+    //Creating buttons
     buttonStart = new QPushButton("Начать");
     buttonPause = new QPushButton("Pause"); buttonPause->setEnabled(false);
     buttonClear = new QPushButton("Clear"); buttonClear->setEnabled(false);
@@ -162,23 +184,25 @@ void HammingLabWidget::createControlLayout(QLayout *mainLayout) {
     controlButtonLayout->addWidget(buttonPause);
     controlButtonLayout->addWidget(buttonClear);
 
+    //Set button layout to be in a control layout
     controlLayout->addLayout(controlButtonLayout);
 
-
+    //Adding progress bar to layout
     progressBar = new QProgressBar;
     controlLayout->addWidget(progressBar);
 
+    //Applying layout to group box
     controlGroupBox->setLayout(controlLayout);
-    controlGroupBox->setMinimumWidth(350);
-    controlGroupBox->setMaximumSize(450, 225);
+    controlGroupBox->setMinimumSize(250, 100);
+    controlGroupBox->setMaximumSize(500, 150);
 
-    mainLayout->addWidget(controlGroupBox);
+    return controlGroupBox;
 }
 
 
-void HammingLabWidget::createStatisticsLayout(QLayout *mainLayout) {
+QGroupBox * HammingLabWidget::createStatisticsLayout() {
     QFont bigFont("Arial", 18);
-    QGroupBox *statisticsGroupBox = new QGroupBox("Результаты");
+    QGroupBox *statisticsGroupBox = new QGroupBox("3. Результаты");
 
     QFormLayout *statisticsLayout = new QFormLayout;
 
@@ -190,7 +214,7 @@ void HammingLabWidget::createStatisticsLayout(QLayout *mainLayout) {
     rightReceived = new QLabel("0");
     repairedCount = new QLabel("0");
     errorMissed = new QLabel("0");
-    statusLabel = new QLabel("Status label");
+
 
     statisticsLayout->addRow("Информационное сообщение: ", informationMessageDisplay);
     statisticsLayout->addRow("Передаваемое сообщение: ", codedMessageDisplay);
@@ -198,15 +222,31 @@ void HammingLabWidget::createStatisticsLayout(QLayout *mainLayout) {
     statisticsLayout->addRow("Переданные без искажения сообщения: ", rightReceived);
     statisticsLayout->addRow("Исправленные сообщения: ", repairedCount);
     statisticsLayout->addRow("Сообщения с необнаруженными искаженими:", errorMissed);
-    statisticsLayout->addWidget(statusLabel);
 
     statisticsGroupBox->setLayout(statisticsLayout);
-    statisticsGroupBox->setMinimumWidth(450);
-    statisticsGroupBox->setMaximumSize(600, 225);
+    statisticsGroupBox->setMinimumSize(600, 200);
+    statisticsGroupBox->setMaximumWidth(700);
 
-    mainLayout->addWidget(statisticsGroupBox);
+    return statisticsGroupBox;
 }
 
+QGroupBox * HammingLabWidget::createConclusionLayout() {
+    return new QGroupBox("4. Сделайте выводы");
+}
+
+QGroupBox * HammingLabWidget::createStatusBarLayout() {
+    QGroupBox *statusGroupBox = new QGroupBox;
+    QHBoxLayout *statusBoxLayout = new QHBoxLayout;
+    statusLabel = new QLabel("Status label");
+
+    statusBoxLayout->addWidget(statusLabel, 0, Qt::AlignLeft | Qt::AlignBottom);
+
+    statusGroupBox->setLayout(statusBoxLayout);
+    statusGroupBox->setMaximumHeight(40);
+    statusGroupBox->setStyleSheet("QGroupBox {border: 1px solid slightgray; border-radius: 3px;} color: gray");
+
+    return statusGroupBox;
+}
 
 std::string HammingLabWidget::boolArrayToString(std::vector<bool> &array) {
     std::string result;
