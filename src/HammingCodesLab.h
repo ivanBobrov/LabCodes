@@ -33,6 +33,7 @@ public:
 
     void startSendProcess();
     void pauseSendProcess();
+    void resumeSendProcess();
 
     void setInformationMessage(std::vector<bool> &infoMessage);
     void setProbability(double probability);

@@ -7,6 +7,7 @@ HammingLabWidget::HammingLabWidget() {
     qRegisterMetaType<HammingLabResult>("HammingLabResult");
     QObject::connect(eventEmitter, SIGNAL(startProcessSignal()), this, SLOT(onStartProcess()));
     QObject::connect(eventEmitter, SIGNAL(pauseProcessSignal()), this, SLOT(onPauseProcess()));
+    QObject::connect(eventEmitter, SIGNAL(resumeProcessSignal()), this, SLOT(onResumeProcess()));
     QObject::connect(eventEmitter, SIGNAL(informationMessageChangedSignal(std::vector<bool>&, std::vector<bool>&)),
                      this, SLOT(onInformationMessageChanged(std::vector<bool>&, std::vector<bool>&)));
     QObject::connect(eventEmitter, SIGNAL(probabilityChangedSignal(double)), this, SLOT(onProbabilityChanged(double)));
@@ -21,6 +22,7 @@ HammingLabWidget::HammingLabWidget() {
 
 void HammingLabWidget::onStartProcess() {
     buttonStart->setEnabled(false);
+    buttonPause->setEnabled(true);
     informationMessageLineEdit->setEnabled(false);
     probabilityLineEdit->setEnabled(false);
     attemptsCountLineEdit->setEnabled(false);
@@ -29,7 +31,28 @@ void HammingLabWidget::onStartProcess() {
 }
 
 void HammingLabWidget::onPauseProcess() {
+    buttonPause->setEnabled(false);
+    buttonResume->setEnabled(true);
+    statusLabel->setText("Send process paused");
+}
 
+void HammingLabWidget::onResumeProcess() {
+    buttonResume->setEnabled(false);
+    buttonPause->setEnabled(true);
+    statusLabel->setText("Send process resumed");
+}
+
+void HammingLabWidget::onSendProcessFinished(const HammingLabResult &results) {
+    progressBar->setEnabled(false);
+
+    informationMessageLineEdit->setEnabled(true);
+    probabilityLineEdit->setEnabled(true);
+    attemptsCountLineEdit->setEnabled(true);
+
+    buttonStart->setEnabled(true);
+    buttonPause->setEnabled(false);
+    buttonResume->setEnabled(false);
+    statusLabel->setText("Send process successfully done");
 }
 
 void HammingLabWidget::onInformationMessageChanged(std::vector<bool> &infoMessage, std::vector<bool> &codedMessage) {
@@ -71,21 +94,16 @@ void HammingLabWidget::onResultsChanged(const HammingLabResult &results) {
     errorMissed->setText(QString::number(results.getErrorMissedCount()));
 }
 
-void HammingLabWidget::onSendProcessFinished(const HammingLabResult &results) {
-    progressBar->setEnabled(false);
-    statusLabel->setText("Send process successfully done");
-    informationMessageLineEdit->setEnabled(true);
-    probabilityLineEdit->setEnabled(true);
-    attemptsCountLineEdit->setEnabled(true);
-    buttonStart->setEnabled(true);
-}
-
 void HammingLabWidget::onStartButtonClick() {
     hammingCodesLab->startSendProcess();
 }
 
 void HammingLabWidget::onPauseButtonClick() {
     hammingCodesLab->pauseSendProcess();
+}
+
+void HammingLabWidget::onResumeButtonClick() {
+    hammingCodesLab->resumeSendProcess();
 }
 
 void HammingLabWidget::onClearButtonClick() {
@@ -175,13 +193,16 @@ QGroupBox * HammingLabWidget::createControlLayout() {
 
     //Creating buttons
     buttonStart = new QPushButton("Начать");
-    buttonPause = new QPushButton("Pause"); buttonPause->setEnabled(false);
+    buttonPause = new QPushButton("Приостановить"); buttonPause->setEnabled(false);
+    buttonResume = new QPushButton("Продолжить"); buttonResume->setEnabled(false);
     buttonClear = new QPushButton("Clear"); buttonClear->setEnabled(false);
     QObject::connect(buttonStart, SIGNAL(clicked()), this, SLOT(onStartButtonClick()));
     QObject::connect(buttonPause, SIGNAL(clicked()), this, SLOT(onPauseButtonClick()));
+    QObject::connect(buttonResume, SIGNAL(clicked()), this, SLOT(onResumeButtonClick()));
     QObject::connect(buttonClear, SIGNAL(clicked()), this, SLOT(onClearButtonClick()));
     controlButtonLayout->addWidget(buttonStart);
     controlButtonLayout->addWidget(buttonPause);
+    controlButtonLayout->addWidget(buttonResume);
     controlButtonLayout->addWidget(buttonClear);
 
     //Set button layout to be in a control layout

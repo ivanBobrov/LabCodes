@@ -11,13 +11,16 @@ class HammingCodesLab;
 
 enum class HammingLabProcessorState {
     READY,
-    RUNNING
+    RUNNING,
+    PAUSED
 };
 
 class HammingLabProcessor {
 private:
     HammingLabProcessorState state;
     boost::thread* thread;
+    boost::mutex mPauseMutex;
+    boost::condition_variable mPausedChanged;
     HammingCodesLab* hammingCodesLab;
 
     Message* infoMessage;
@@ -26,7 +29,6 @@ private:
     HammingLabResult hammingLabResult;
     double probability;
     int attemptsCount;
-    int currentAttempt;
 
     void execution();
 
@@ -35,6 +37,8 @@ public:
     ~HammingLabProcessor();
 
     bool start(const Message* info, double probability, int attemptsCount);
+    bool pause();
+    bool resume();
 
     HammingLabProcessorState getProcessorState();
 };

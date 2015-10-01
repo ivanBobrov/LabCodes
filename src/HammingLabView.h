@@ -7,6 +7,7 @@ class HammingLabView {
 public:
     virtual void onStartProcess() = 0;
     virtual void onPauseProcess() = 0;
+    virtual void onResumeProcess() = 0;
 
     virtual void onInformationMessageChanged(std::vector<bool> &infoMessage, std::vector<bool> &codedMessage) = 0;
     virtual void onProbabilityChanged(double newProbability) = 0;

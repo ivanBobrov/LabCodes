@@ -36,7 +36,13 @@ void HammingCodesLab::startSendProcess() {
 }
 
 void HammingCodesLab::pauseSendProcess() {
+    hammingLabProcessor->pause();
+    hammingLabView->onPauseProcess();
+}
 
+void HammingCodesLab::resumeSendProcess() {
+    hammingLabProcessor->resume();
+    hammingLabView->onResumeProcess();
 }
 
 void HammingCodesLab::setInformationMessage(std::vector<bool> &infoMessage) {

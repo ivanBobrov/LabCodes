@@ -43,12 +43,44 @@ bool HammingLabProcessor::start(const Message* info, double probability, int att
     }
 }
 
+
+bool HammingLabProcessor::pause() {
+    if (state == HammingLabProcessorState::RUNNING) {
+        {
+            boost::unique_lock<boost::mutex> lock(mPauseMutex);
+            state = HammingLabProcessorState::PAUSED;
+        }
+
+        mPausedChanged.notify_all();
+
+        return true;
+    }
+
+    return false;
+}
+
+bool HammingLabProcessor::resume() {
+    if (state == HammingLabProcessorState::PAUSED) {
+        {
+            boost::unique_lock<boost::mutex> lock(mPauseMutex);
+            state = HammingLabProcessorState::RUNNING;
+        }
+
+        mPausedChanged.notify_all();
+
+        return true;
+    }
+
+    return false;
+}
+
 HammingLabProcessorState HammingLabProcessor::getProcessorState() {
     return state;
 }
 
 void HammingLabProcessor::execution() {
     EnvironmentImitator::randomize();
+
     for (int i = 0; i < attemptsCount; i++) {
 
         // Create message
@@ -75,6 +107,11 @@ void HammingLabProcessor::execution() {
 
         if (i % 10000 == 0) {
             hammingCodesLab->updateResults(hammingLabResult);
+        }
+
+        boost::unique_lock<boost::mutex> lock(mPauseMutex);
+        while (state == HammingLabProcessorState::PAUSED) {
+            mPausedChanged.wait(lock);
         }
     }
 

@@ -19,6 +19,7 @@ private:
 
     QPushButton *buttonStart;
     QPushButton *buttonPause;
+    QPushButton *buttonResume;
     QPushButton *buttonClear;
     QLineEdit *informationMessageLineEdit;
     QLineEdit *probabilityLineEdit;
@@ -47,6 +48,7 @@ public:
 public slots:
     void onStartButtonClick();
     void onPauseButtonClick();
+    void onResumeButtonClick();
     void onClearButtonClick();
     void onInformationLineEditChanged(const QString &text);
     void onProbabilityLineEditChanged();
@@ -54,11 +56,12 @@ public slots:
 
     void onStartProcess();
     void onPauseProcess();
+    void onResumeProcess();
+    void onSendProcessFinished(const HammingLabResult &results);
     void onInformationMessageChanged(std::vector<bool> &infoMessage, std::vector<bool> &codedMessage);
     void onProbabilityChanged(double newProbability);
     void onAttemptsCountChanged(int newAttemptsCount);
     void onResultsChanged(const HammingLabResult &results);
-    void onSendProcessFinished(const HammingLabResult &results);
 
 };
 

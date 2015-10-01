@@ -13,6 +13,10 @@ void HammingLabEventEmitter::onPauseProcess() {
     emit pauseProcessSignal();
 }
 
+void HammingLabEventEmitter::onResumeProcess() {
+    emit resumeProcessSignal();
+}
+
 void HammingLabEventEmitter::onInformationMessageChanged(std::vector<bool> &infoMessage,
                                                          std::vector<bool> &codedMessage) {
     emit informationMessageChangedSignal(infoMessage, codedMessage);

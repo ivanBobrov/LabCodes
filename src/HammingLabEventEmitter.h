@@ -16,6 +16,7 @@ public:
 
     virtual void onStartProcess() override;
     virtual void onPauseProcess() override;
+    virtual void onResumeProcess() override;
     virtual void onInformationMessageChanged(std::vector<bool> &infoMessage, std::vector<bool> &codedMessage) override;
     virtual void onProbabilityChanged(double newProbability) override;
     virtual void onAttemptsCountChanged(int newAttemptsCount) override;
@@ -25,6 +26,7 @@ public:
 signals:
     void startProcessSignal();
     void pauseProcessSignal();
+    void resumeProcessSignal();
     void informationMessageChangedSignal(std::vector<bool> &infoMessage, std::vector<bool> &codedMessage);
     void probabilityChangedSignal(double newProbability);
     void attemptsCountChangedSignal(int newAttemptsCount);
