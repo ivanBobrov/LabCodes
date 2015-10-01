@@ -160,7 +160,7 @@ QGroupBox * HammingLabWidget::createInputLayout() {
     //Set layout to group box
     inputGroupBox->setLayout(inputLayout);
     inputGroupBox->setMinimumSize(430, 125);
-    inputGroupBox->setMaximumSize(500, 180);
+    inputGroupBox->setMaximumSize(700, 180);
 
     return inputGroupBox;
 }
@@ -194,7 +194,7 @@ QGroupBox * HammingLabWidget::createControlLayout() {
     //Applying layout to group box
     controlGroupBox->setLayout(controlLayout);
     controlGroupBox->setMinimumSize(250, 100);
-    controlGroupBox->setMaximumSize(500, 150);
+    controlGroupBox->setMaximumSize(700, 150);
 
     return controlGroupBox;
 }
