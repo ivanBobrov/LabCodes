@@ -23,6 +23,7 @@ HammingLabWidget::HammingLabWidget() {
 void HammingLabWidget::onStartProcess() {
     buttonStart->setEnabled(false);
     buttonPause->setEnabled(true);
+    buttonClear->setEnabled(true);
     informationMessageLineEdit->setEnabled(false);
     probabilityLineEdit->setEnabled(false);
     attemptsCountLineEdit->setEnabled(false);
@@ -52,6 +53,7 @@ void HammingLabWidget::onSendProcessFinished(const HammingLabResult &results) {
     buttonStart->setEnabled(true);
     buttonPause->setEnabled(false);
     buttonResume->setEnabled(false);
+    buttonClear->setEnabled(false);
     statusLabel->setText("Send process successfully done");
 }
 
@@ -107,10 +109,7 @@ void HammingLabWidget::onResumeButtonClick() {
 }
 
 void HammingLabWidget::onClearButtonClick() {
-    //TODO: implement clear button handler
-
-    std::vector<bool> vect = {false, true, true};
-    hammingCodesLab->setInformationMessage(vect);
+    hammingCodesLab->stopSendProcess();
 }
 
 void HammingLabWidget::onInformationLineEditChanged(const QString &text) {
@@ -195,7 +194,7 @@ QGroupBox * HammingLabWidget::createControlLayout() {
     buttonStart = new QPushButton("Начать");
     buttonPause = new QPushButton("Приостановить"); buttonPause->setEnabled(false);
     buttonResume = new QPushButton("Продолжить"); buttonResume->setEnabled(false);
-    buttonClear = new QPushButton("Clear"); buttonClear->setEnabled(false);
+    buttonClear = new QPushButton("Сбросить"); buttonClear->setEnabled(false);
     QObject::connect(buttonStart, SIGNAL(clicked()), this, SLOT(onStartButtonClick()));
     QObject::connect(buttonPause, SIGNAL(clicked()), this, SLOT(onPauseButtonClick()));
     QObject::connect(buttonResume, SIGNAL(clicked()), this, SLOT(onResumeButtonClick()));

@@ -45,6 +45,10 @@ void HammingCodesLab::resumeSendProcess() {
     hammingLabView->onResumeProcess();
 }
 
+void HammingCodesLab::stopSendProcess() {
+    hammingLabProcessor->stop();
+}
+
 void HammingCodesLab::setInformationMessage(std::vector<bool> &infoMessage) {
     if (infoMessage.empty()) {
         information->clear();

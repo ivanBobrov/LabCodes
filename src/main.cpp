@@ -20,9 +20,10 @@ int main(int argc, char *argv[]) {
  *		4. Status label should be in the bottom of the layout. Use QStatusBar.
  *		5. Static linking Qt5 on Windows OS.
  *		6. Statistic's layout elements should be fit each other (by width).
- *		7. Cyclic codes widget.
- *		8. Implement multi-threaded process.
- *		9. Icon of application
+ *		7. Try to replace statistics labels with lineEdits with gray background.
+ *		8. Cyclic codes widget.
+ *		9. Implement multi-threaded process.
+ *		10. Icon of application
  *
  *	TODO: out-of-list
  *		1. Decimal delimiter on input fields

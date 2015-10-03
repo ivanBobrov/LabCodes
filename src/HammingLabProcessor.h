@@ -31,6 +31,7 @@ private:
     int attemptsCount;
 
     void execution();
+    void terminateThread();
 
 public:
     HammingLabProcessor(HammingCodesLab* hammingCodesLab);
@@ -39,6 +40,7 @@ public:
     bool start(const Message* info, double probability, int attemptsCount);
     bool pause();
     bool resume();
+    bool stop();
 
     HammingLabProcessorState getProcessorState();
 };

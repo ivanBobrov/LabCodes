@@ -2,16 +2,17 @@
 
 HammingLabProcessor::HammingLabProcessor(HammingCodesLab *hammingCodesLab) {
     this->hammingCodesLab = hammingCodesLab;
+    this->thread = nullptr;
     state = HammingLabProcessorState::READY;
 }
 
 HammingLabProcessor::~HammingLabProcessor() {
     if (thread != nullptr) {
         if (thread->joinable()) {
-            thread->detach(); //TODO: interrupt
+            thread->interrupt();
         }
 
-        delete thread;
+        return;
     }
 
     if (infoMessage != nullptr) {
@@ -74,55 +75,74 @@ bool HammingLabProcessor::resume() {
     return false;
 }
 
+bool HammingLabProcessor::stop() {
+    if (state == HammingLabProcessorState::RUNNING || state == HammingLabProcessorState::PAUSED) {
+        thread->interrupt();
+
+        return true;
+    }
+
+    return false;
+}
+
 HammingLabProcessorState HammingLabProcessor::getProcessorState() {
     return state;
 }
 
 void HammingLabProcessor::execution() {
     EnvironmentImitator::randomize();
+    try {
+        for (int i = 0; i < attemptsCount; i++) {
 
-    for (int i = 0; i < attemptsCount; i++) {
+            // Create message
+            Message probe(*codedMessage);
+            Message decoded;
 
-        // Create message
-        Message probe(*codedMessage);
-        Message decoded;
+            // Canal corruption
+            EnvironmentImitator::sendMessage(probe, probability);
 
-        // Canal corruption
-        EnvironmentImitator::sendMessage(probe, probability);
+            // Decode
+            HammingDecodeStatus status = CodeConverter::decodeHamming(probe, decoded);
+            bool equals = infoMessage->equals(decoded);
 
-        // Decode
-        HammingDecodeStatus status = CodeConverter::decodeHamming(probe, decoded);
-        bool equals = infoMessage->equals(decoded);
+            if (equals) {
+                if (status == HammingDecodeStatus::DECODED) {
+                    hammingLabResult.incrementSuccess();
+                } else if (status == HammingDecodeStatus::REPAIRED) {
+                    hammingLabResult.incrementRepaired();
+                }
 
-        if (equals) {
-            if (status == HammingDecodeStatus::DECODED) {
-                hammingLabResult.incrementSuccess();
-            } else if (status == HammingDecodeStatus::REPAIRED) {
-                hammingLabResult.incrementRepaired();
+            } else {
+                hammingLabResult.incrementErrorMissed();
             }
 
-        } else {
-            hammingLabResult.incrementErrorMissed();
-        }
+            if (i % 10000 == 0) {
+                hammingCodesLab->updateResults(hammingLabResult);
+            }
 
-        if (i % 10000 == 0) {
-            hammingCodesLab->updateResults(hammingLabResult);
-        }
+            boost::unique_lock<boost::mutex> lock(mPauseMutex);
+            while (state == HammingLabProcessorState::PAUSED) {
+                mPausedChanged.wait(lock);
+            }
 
-        boost::unique_lock<boost::mutex> lock(mPauseMutex);
-        while (state == HammingLabProcessorState::PAUSED) {
-            mPausedChanged.wait(lock);
+            boost::this_thread::interruption_point();
         }
-    }
+    } catch (boost::thread_interrupted&) {}
 
     hammingCodesLab->sendProcessFinished(hammingLabResult);
 
-    thread->detach();
-    delete thread;
-    thread = nullptr;
+    terminateThread();
+}
 
-    delete infoMessage;
-    delete codedMessage;
+void HammingLabProcessor::terminateThread() {
+    if (state != HammingLabProcessorState::READY && thread != nullptr) {
+        thread->detach();
+        delete thread;
+        thread = nullptr;
 
-    state = HammingLabProcessorState::READY;
+        delete infoMessage;
+        delete codedMessage;
+
+        state = HammingLabProcessorState::READY;
+    }
 }
