@@ -4,33 +4,45 @@ void CodeConverter::codeHamming(const Message &origin, Message &output) {
     output.clear();
 
     int infoBitsCount = origin.size();
-    int controlBitsCount = (int)(ceil(log2(infoBitsCount))) + 1;
-    int outputBitsCount = infoBitsCount + controlBitsCount;
+    if (infoBitsCount == 0) {
+        return;
+    }
 
-    int nextControlIndex = 1;
-    int infoIndex = 0;
-    for (int i = 0; i < outputBitsCount; i++) {
-        if (i == nextControlIndex - 1) {
-            output.appendBit(false);
-            nextControlIndex *=2;
-        } else {
-            output.appendBit(origin.getBit(infoIndex++));
+    // Add control bits in the required place
+    {
+        int currentControlBitIndex = 0;
+        int currentOriginMessageIndex = 0;
+        int currentOutputMessageIndex = 0;
+        while (currentOriginMessageIndex < infoBitsCount) {
+            if (currentOutputMessageIndex == currentControlBitIndex) {
+                output.appendBit(false);
+                currentControlBitIndex = (((currentControlBitIndex + 1) * 2) - 1);
+            } else {
+                output.appendBit(origin.getBit(currentOriginMessageIndex));
+                currentOriginMessageIndex++;
+            }
+
+            currentOutputMessageIndex++;
         }
     }
 
-    for (nextControlIndex = 1; nextControlIndex <= pow(2, controlBitsCount); nextControlIndex *= 2) {
-        int controlIndex = nextControlIndex - 1;
-        bool bitValue = false;
+    // Fill control bits
+    {
+        int currentControlBitIndex = 0;
+        while (currentControlBitIndex < output.size()) {
+            bool bitValue = false;
+            int index = currentControlBitIndex;
+            while (index < output.size()) {
+                for (int i = 0; i < currentControlBitIndex + 1; i++) {
+                    bitValue = XOR(bitValue, output.getBit(index + i));
+                }
 
-        int index = controlIndex;
-        while (index < outputBitsCount) {
-            for (int i = 0; i < nextControlIndex && index < outputBitsCount; i++) {
-                bitValue = XOR(bitValue, output.getBit(index++));
+                index += (currentControlBitIndex + 1) * 2;
             }
-            index += nextControlIndex;
-        }
 
-        output.setBit(controlIndex, bitValue);
+            output.setBit(currentControlBitIndex, bitValue);
+            currentControlBitIndex = (((currentControlBitIndex + 1) * 2) - 1);
+        }
     }
 }
 
