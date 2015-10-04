@@ -18,6 +18,7 @@ HammingLabWidget::HammingLabWidget() {
                      this, SLOT(onSendProcessFinished(const HammingLabResult&)));
 
     hammingCodesLab = HammingCodesLab::createInstance(eventEmitter);
+    statusBar->showMessage("Ready");
 }
 
 void HammingLabWidget::onStartProcess() {
@@ -28,19 +29,19 @@ void HammingLabWidget::onStartProcess() {
     probabilityLineEdit->setEnabled(false);
     attemptsCountLineEdit->setEnabled(false);
 
-    statusLabel->setText("Send process started");
+    statusBar->showMessage("Send process started");
 }
 
 void HammingLabWidget::onPauseProcess() {
     buttonPause->setEnabled(false);
     buttonResume->setEnabled(true);
-    statusLabel->setText("Send process paused");
+    statusBar->showMessage("Send process paused");
 }
 
 void HammingLabWidget::onResumeProcess() {
     buttonResume->setEnabled(false);
     buttonPause->setEnabled(true);
-    statusLabel->setText("Send process resumed");
+    statusBar->showMessage("Send process resumed");
 }
 
 void HammingLabWidget::onSendProcessFinished(const HammingLabResult &results) {
@@ -54,35 +55,35 @@ void HammingLabWidget::onSendProcessFinished(const HammingLabResult &results) {
     buttonPause->setEnabled(false);
     buttonResume->setEnabled(false);
     buttonClear->setEnabled(false);
-    statusLabel->setText("Send process successfully done");
+    statusBar->showMessage("Send process successfully done");
 }
 
 void HammingLabWidget::onInformationMessageChanged(std::vector<bool> &infoMessage, std::vector<bool> &codedMessage) {
-    QString string = QString::fromStdString(boolArrayToString(infoMessage));
-    QString coded = QString::fromStdString(boolArrayToString(codedMessage));
+    QString infoString = QString::fromStdString(boolArrayToString(infoMessage));
+    QString codedString = QString::fromStdString(boolArrayToString(codedMessage));
 
-    if (!string.isEmpty()) {
+    if (!infoString.isEmpty()) {
         informationMessageDisplay->setStyleSheet("");
-        informationMessageDisplay->setText(string);
-        codedMessageDisplay->setText(coded);
+        informationMessageDisplay->setText(infoString);
+        codedMessageDisplay->setText(codedString);
 
-        statusLabel->setText("Information message changed: " + string);
+        statusBar->showMessage("Information message changed: " + infoString);
     } else {
         informationMessageDisplay->setStyleSheet("color: lightgrey");
         informationMessageDisplay->setText("insert message polynomial");
         codedMessageDisplay->setText("");
 
-        statusLabel->setText("Information message cleared");
+        statusBar->showMessage("Information message cleared");
     }
 
 }
 
 void HammingLabWidget::onProbabilityChanged(double newProbability) {
-    statusLabel->setText("Probability changed: " + QString::number(newProbability));
+    statusBar->showMessage("Probability changed: " + QString::number(newProbability));
 }
 
 void HammingLabWidget::onAttemptsCountChanged(int newAttemptsCount) {
-    statusLabel->setText("Attempts count changed: " + QString::number(newAttemptsCount));
+    statusBar->showMessage("Attempts count changed: " + QString::number(newAttemptsCount));
 }
 
 void HammingLabWidget::onResultsChanged(const HammingLabResult &results) {
@@ -255,15 +256,19 @@ QGroupBox * HammingLabWidget::createConclusionLayout() {
 }
 
 QGroupBox * HammingLabWidget::createStatusBarLayout() {
+    QFont smallFont("Arial", 9);
+
     QGroupBox *statusGroupBox = new QGroupBox;
     QHBoxLayout *statusBoxLayout = new QHBoxLayout;
-    statusLabel = new QLabel("Status label");
 
-    statusBoxLayout->addWidget(statusLabel, 0, Qt::AlignLeft | Qt::AlignBottom);
+    statusBar = new QStatusBar;
+    statusBar->setFont(smallFont);
+
+    statusBar->showMessage("Ready");
+    statusBoxLayout->addWidget(statusBar);
 
     statusGroupBox->setLayout(statusBoxLayout);
-    statusGroupBox->setMaximumHeight(40);
-    statusGroupBox->setStyleSheet("QGroupBox {border: 1px solid slightgray; border-radius: 3px;} color: gray");
+    statusGroupBox->setMaximumSize(700, 60);
 
     return statusGroupBox;
 }

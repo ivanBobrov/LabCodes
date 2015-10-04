@@ -30,7 +30,7 @@ private:
     QLabel *rightReceived;
     QLabel *repairedCount;
     QLabel *errorMissed;
-    QLabel *statusLabel;
+    QStatusBar *statusBar;
     QProgressBar *progressBar;
 
     void createLayouts();
