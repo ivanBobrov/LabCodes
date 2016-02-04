@@ -4,6 +4,12 @@
 #include <QtWidgets>
 #include "HammingLabView.h"
 
+/*
+ * Class provides binding of QT signal/slots architecture with laboratory core
+ * model. We didn't use signal/slots in core model to provide model
+ * encapsulation and separate it from ui.
+ */
+
 class HammingLabEventEmitter : public QObject, public HammingLabView {
 
 Q_OBJECT
