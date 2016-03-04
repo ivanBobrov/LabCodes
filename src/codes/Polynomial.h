@@ -23,7 +23,7 @@ public:
      * order is from lower degree term to upper i.e. term with index 0 means
      * constant term.
      */
-    virtual bool getTerm(int termIndex) const = 0;
+    virtual bool getTerm(int power) const = 0;
 
     /**
      * Returns string representation of binary Polynomial

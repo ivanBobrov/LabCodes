@@ -9,17 +9,19 @@ private:
     int mSize;
     bool *container;
 
+    void reAllocate(int newSize);
+
 public:
-    SimplePolynomial(int polynomialLength);
+    SimplePolynomial();
     SimplePolynomial(int polynomialLength, const bool* values);
     SimplePolynomial(const Polynomial& polynomial);
     ~SimplePolynomial();
 
     virtual int size() const;
-    virtual bool getTerm(int termIndex) const;
+    virtual bool getTerm(int power) const;
     virtual std::string toString() const;
 
-    void setTerm(int index, bool value);
+    void setTerm(int power, bool value);
 };
 
 

@@ -1,9 +1,8 @@
+#include <stdexcept>
 #include "SimplePolynomial.h"
 
-SimplePolynomial::SimplePolynomial(int polynomialLength) {
-    if (polynomialLength < 0) {
-        //TODO: exception
-    }
+SimplePolynomial::SimplePolynomial() {
+    int polynomialLength = 1;
 
     this->container = new bool[polynomialLength];
     std::fill(this->container, this->container + polynomialLength, 0);
@@ -21,7 +20,7 @@ SimplePolynomial::SimplePolynomial(const Polynomial& polynomial) {
 
 SimplePolynomial::SimplePolynomial(int polynomialLength, const bool *values) {
     if (polynomialLength < 0) {
-        //TODO: exception
+        throw std::invalid_argument("polynomial length must be positive number");
     }
 
     this->mSize = polynomialLength;
@@ -39,20 +38,24 @@ int SimplePolynomial::size() const {
     return this->mSize;
 }
 
-bool SimplePolynomial::getTerm(int termIndex) const {
-    if (termIndex < 0 || termIndex >= this->mSize) {
-        //TODO: exception
+bool SimplePolynomial::getTerm(int power) const {
+    if (power < 0 || power >= this->mSize) {
+        return false;
     }
 
-    return this->container[termIndex];
+    return this->container[power];
 }
 
-void SimplePolynomial::setTerm(int index, bool value) {
-    if (index < 0 || index > this->mSize) {
-        //TODO: exception
+void SimplePolynomial::setTerm(int power, bool value) {
+    if (power < 0) {
+        throw std::invalid_argument("power is negative");
     }
 
-    this->container[index] = value;
+    if (power >= this->mSize) {
+        reAllocate(power+1);
+    }
+
+    this->container[power] = value;
 }
 
 std::string SimplePolynomial::toString() const {
@@ -67,4 +70,19 @@ std::string SimplePolynomial::toString() const {
     }
 
     return representation;
+}
+
+void SimplePolynomial::reAllocate(int newSize) {
+    if (newSize == this->mSize) {
+        return;
+    }
+
+    bool* newContainer = new bool[newSize];
+    for (int i = 0; i < newSize > this->mSize ? this->mSize : newSize; i++) {
+        newContainer[i] = this->container[i];
+    }
+
+    delete[] this->container;
+    this->container = newContainer;
+    this->mSize = newSize;
 }
