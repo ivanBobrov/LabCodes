@@ -14,21 +14,35 @@ class Polynomial {
 public:
 
     /**
-     * Returns size of Polynomial i.e. polynomial degree
+     * Returns size of Polynomial i.e. polynomial degree. Constant polynomial
+     * must return zero.
      */
     virtual int size() const = 0;
 
     /**
-     * Returns coefficient of term with index <code>termIndex</code>. Look
+     * Returns coefficient of term with index <code>power</code>. Look
      * order is from lower degree term to upper i.e. term with index 0 means
      * constant term.
      */
     virtual bool getTerm(int power) const = 0;
 
     /**
+     * Sets term with index <code>power</code>.
+     */
+    virtual void setTerm(int power, bool value) = 0;
+
+    virtual bool isZero() = 0;
+
+    /**
      * Returns string representation of binary Polynomial
      */
     virtual std::string toString() const = 0;
+
+    virtual void add(const Polynomial &operand) = 0;
+
+    virtual void product(const Polynomial &operand) = 0;
+
+    virtual void division(const Polynomial &operand, Polynomial &remainder) = 0;
 };
 
 

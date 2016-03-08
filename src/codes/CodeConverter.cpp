@@ -93,3 +93,22 @@ bool CodeConverter::repairHammingMessage(Message &message) {
 
     return false;
 }
+
+Message CodeConverter::polynomialToMessage(const Polynomial &origin) {
+    Message result(origin.size() + 1);
+    for (int i = 0; i <= origin.size(); i++) {
+        result.setBit(i, origin.getTerm(i));
+    }
+
+    return result;
+}
+
+SimplePolynomial CodeConverter::messageToPolynomial(const Message &origin) {
+    SimplePolynomial result;
+
+    for (int i = 0; i < origin.size(); i++) {
+        result.setTerm(i, origin.getBit(i));
+    }
+
+    return result;
+}

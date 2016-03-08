@@ -2,32 +2,39 @@
 #include "SimplePolynomial.h"
 
 SimplePolynomial::SimplePolynomial() {
-    int polynomialLength = 1;
+    int allocSize = 10;
 
-    this->container = new bool[polynomialLength];
-    std::fill(this->container, this->container + polynomialLength, 0);
-    this->mSize = polynomialLength;
+    this->container = new bool[allocSize];
+    std::fill(this->container, this->container + allocSize, 0);
+    this->mSize = 0;
+    this->allocSize = allocSize;
 }
 
 SimplePolynomial::SimplePolynomial(const Polynomial& polynomial) {
     int size = polynomial.size();
     this->mSize = size;
-    this->container = new bool[size];
+    this->allocSize = size+1;
+    this->container = new bool[size+1];
     for (int i = 0; i < size; i++) {
         this->container[i] = polynomial.getTerm(i);
     }
+
+    trim();
 }
 
-SimplePolynomial::SimplePolynomial(int polynomialLength, const bool *values) {
-    if (polynomialLength < 0) {
+SimplePolynomial::SimplePolynomial(int polynomialPower, const bool *values) {
+    if (polynomialPower < 0) {
         throw std::invalid_argument("polynomial length must be positive number");
     }
 
-    this->mSize = polynomialLength;
-    this->container = new bool[polynomialLength];
-    for (int i = 0; i < polynomialLength; i++) {
+    this->mSize = polynomialPower;
+    this->allocSize = polynomialPower + 1;
+    this->container = new bool[polynomialPower + 1];
+    for (int i = 0; i <= polynomialPower; i++) {
         this->container[i] = values[i];
     }
+
+    trim();
 }
 
 SimplePolynomial::~SimplePolynomial() {
@@ -39,7 +46,7 @@ int SimplePolynomial::size() const {
 }
 
 bool SimplePolynomial::getTerm(int power) const {
-    if (power < 0 || power >= this->mSize) {
+    if (power < 0 || power > this->mSize) {
         return false;
     }
 
@@ -51,16 +58,29 @@ void SimplePolynomial::setTerm(int power, bool value) {
         throw std::invalid_argument("power is negative");
     }
 
-    if (power >= this->mSize) {
-        reAllocate(power+1);
-    }
+    if (power > this->mSize) {
+        if (power >= this->allocSize) {
+            reAllocate(power+1);
+        }
 
-    this->container[power] = value;
+        this->mSize = power;
+        this->container[power] = value;
+    } else if (power == this->mSize) {
+        this->container[power] = value;
+        trim();
+    } else {
+        this->container[power] = value;
+    }
+}
+
+
+bool SimplePolynomial::isZero() {
+    return mSize == 0 && !getTerm(0);
 }
 
 std::string SimplePolynomial::toString() const {
     std::string representation;
-    for (int i = 0; i < this->mSize; i++) {
+    for (int i = 0; i <= this->mSize; i++) {
         bool val = this->container[i];
         if (val) {
             representation.append("1");
@@ -73,16 +93,94 @@ std::string SimplePolynomial::toString() const {
 }
 
 void SimplePolynomial::reAllocate(int newSize) {
-    if (newSize == this->mSize) {
+    if (newSize == this->allocSize) {
         return;
     }
 
     bool* newContainer = new bool[newSize];
-    for (int i = 0; i < newSize > this->mSize ? this->mSize : newSize; i++) {
+    int bound = newSize > this->allocSize ? this->allocSize : newSize;
+    for (int i = 0; i < bound; i++) {
         newContainer[i] = this->container[i];
     }
 
     delete[] this->container;
     this->container = newContainer;
-    this->mSize = newSize;
+    this->allocSize = newSize;
+}
+
+void SimplePolynomial::trim() {
+    int lastPositivePower = 0;
+
+    for (int i = 0; i < allocSize; i++) {
+        if (container[i]) {
+            lastPositivePower = i;
+        }
+    }
+
+    if (lastPositivePower < mSize) {
+        mSize = lastPositivePower;
+    }
+}
+
+
+void SimplePolynomial::clear() {
+    for (int i = 0; i <= size(); i++) {
+        setTerm(i, false);
+    }
+
+    mSize = 0;
+}
+
+void SimplePolynomial::add(const Polynomial &operand) {
+    int maxBound = std::max(size(), operand.size());
+
+    for (int i = 0; i <= maxBound; i++) {
+        setTerm(i, getTerm(i) ^ operand.getTerm(i));
+    }
+}
+
+void SimplePolynomial::product(const Polynomial &operand) {
+    int maxBound = size() + operand.size();
+
+    bool *out = new bool[maxBound+1];
+
+    for (int i = 0; i <= maxBound; i++) {
+        bool iValue = false;
+
+        for (int j = 0; j <= i; j++) {
+            bool add = getTerm(j) && operand.getTerm(i-j);
+            iValue ^= add;
+        }
+
+        out[i] = iValue;
+    }
+
+    for (int i = 0; i <= maxBound; i++ ) {
+        setTerm(i, out[i]);
+    }
+
+    delete[] out;
+}
+
+void SimplePolynomial::division(const Polynomial &operand, Polynomial &remainder) {
+    if (operand.size() == 0 && operand.getTerm(0) == false) {
+        throw std::invalid_argument("Division by zero");
+    }
+
+    for (int i = 0; i <= size(); i++) {
+        remainder.setTerm(i, getTerm(i));
+        setTerm(i, false);
+    }
+
+    SimplePolynomial factor;
+
+    while (remainder.size() >= operand.size() && !remainder.isZero()) {
+        factor.setTerm(remainder.size() - operand.size(), true);
+        add(factor);
+
+        factor.product(operand);
+        remainder.add(factor);
+
+        factor.clear();
+    }
 }

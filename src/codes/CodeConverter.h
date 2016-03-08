@@ -3,6 +3,8 @@
 
 #include <math.h>
 #include "Message.h"
+#include "Polynomial.h"
+#include "SimplePolynomial.h"
 
 enum class HammingDecodeStatus {
     DECODED,
@@ -17,6 +19,9 @@ private:
 public:
     static void codeHamming(const Message& origin, Message& output);
     static HammingDecodeStatus decodeHamming(Message &coded, Message &decodedOutput);
+
+    static Message polynomialToMessage(const Polynomial &origin);
+    static SimplePolynomial messageToPolynomial(const Message &origin);
 };
 
 
