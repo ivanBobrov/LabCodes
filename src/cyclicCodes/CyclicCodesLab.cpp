@@ -1,16 +1,26 @@
 #include "CyclicCodesLab.h"
 
 CyclicCodesLab::CyclicCodesLab(CyclicLabView &view): labView(view) {
-    bool arrOne[] = {0, 0, 1, 1, 1, 0, 0, 0, 0, 1};
-    bool arrTwo[] = {0, 0, 1, 0, 1};
-    SimplePolynomial polynomialOne(9, arrOne);
-    SimplePolynomial polynomialTwo(4, arrTwo);
-    SimplePolynomial remainder;
-    polynomialOne.division(polynomialTwo, remainder);
+    bool arrOne[] = {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+    bool arrTwo[] = {1, 1, 0, 1};
+    SimplePolynomial polynomialOne(15, arrOne);
+    SimplePolynomial polynomialTwo(3, arrTwo);
 
-    Message message = CodeConverter::polynomialToMessage(polynomialOne);
-    SimplePolynomial poly = CodeConverter::messageToPolynomial(message);
+    Message message = CodeConverter::codeCRC(polynomialOne, polynomialTwo);
 
-    std::string label = poly.toString();
+    message.switchBit(7);
+    message.switchBit(5);
+    message.switchBit(10);
+    message.switchBit(9);
+
+    SimplePolynomial check = CodeConverter::extractCRC(message, polynomialTwo);
+
+    std::string label;
+    if (CodeConverter::checkCorrectnessCRC(message, polynomialTwo)) {
+        label = check.toString();
+    } else {
+        label = "Wrong";
+    }
+
     view.setLabel(label);
 }

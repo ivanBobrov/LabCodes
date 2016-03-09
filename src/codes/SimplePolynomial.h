@@ -19,17 +19,20 @@ public:
     SimplePolynomial(const Polynomial& polynomial);
     ~SimplePolynomial();
 
-    virtual int size() const;
+    SimplePolynomial operator=(const SimplePolynomial &origin);
+    SimplePolynomial operator=(const Polynomial &origin) { operator=((SimplePolynomial) origin); return *this; };
+
+    virtual int power() const;
     virtual bool getTerm(int power) const;
     virtual std::string toString() const;
     virtual void setTerm(int power, bool value);
+
     virtual bool isZero();
+    virtual void clear();
+
     virtual void add(const Polynomial &operand);
     virtual void product(const Polynomial &operand);
     virtual void division(const Polynomial &operand, Polynomial &remainder);
-
-    void clear();
 };
-
 
 #endif //CODES_SIMPLE_POLYNOMIAL_H

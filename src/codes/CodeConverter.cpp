@@ -94,9 +94,44 @@ bool CodeConverter::repairHammingMessage(Message &message) {
     return false;
 }
 
+Message CodeConverter::codeCRC(const Polynomial &origin, const Polynomial &generator) {
+    SimplePolynomial shift;
+    shift.setTerm(generator.power(), true);
+
+    SimplePolynomial dividend(origin);
+    SimplePolynomial remainder;
+    dividend.product(shift);
+    dividend.division(generator, remainder); // We take only remainder
+
+    SimplePolynomial coded(origin);
+    coded.product(shift);
+    coded.add(remainder);
+
+    return polynomialToMessage(coded);
+}
+
+SimplePolynomial CodeConverter::extractCRC(const Message &origin, const Polynomial &generator) {
+    SimplePolynomial remainder;
+    SimplePolynomial shift;
+    shift.setTerm(generator.power(), true);
+
+    SimplePolynomial poly = messageToPolynomial(origin);
+    poly.division(shift, remainder);
+
+    return poly;
+}
+
+bool CodeConverter::checkCorrectnessCRC(const Message &origin, const Polynomial &generator) {
+    SimplePolynomial remainder;
+    SimplePolynomial dividend = messageToPolynomial(origin);
+    dividend.division(generator, remainder);
+
+    return remainder.isZero();
+}
+
 Message CodeConverter::polynomialToMessage(const Polynomial &origin) {
-    Message result(origin.size() + 1);
-    for (int i = 0; i <= origin.size(); i++) {
+    Message result(origin.power() + 1);
+    for (int i = 0; i <= origin.power(); i++) {
         result.setBit(i, origin.getTerm(i));
     }
 

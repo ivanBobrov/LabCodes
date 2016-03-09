@@ -20,6 +20,10 @@ public:
     static void codeHamming(const Message& origin, Message& output);
     static HammingDecodeStatus decodeHamming(Message &coded, Message &decodedOutput);
 
+    static Message codeCRC(const Polynomial &origin, const Polynomial &generator);
+    static SimplePolynomial extractCRC(const Message &origin, const Polynomial &generator);
+    static bool checkCorrectnessCRC(const Message &origin, const Polynomial &generator);
+
     static Message polynomialToMessage(const Polynomial &origin);
     static SimplePolynomial messageToPolynomial(const Message &origin);
 };

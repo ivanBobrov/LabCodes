@@ -17,7 +17,7 @@ public:
      * Returns size of Polynomial i.e. polynomial degree. Constant polynomial
      * must return zero.
      */
-    virtual int size() const = 0;
+    virtual int power() const = 0;
 
     /**
      * Returns coefficient of term with index <code>power</code>. Look
@@ -32,6 +32,8 @@ public:
     virtual void setTerm(int power, bool value) = 0;
 
     virtual bool isZero() = 0;
+
+    virtual void clear() = 0;
 
     /**
      * Returns string representation of binary Polynomial

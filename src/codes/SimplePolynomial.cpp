@@ -11,11 +11,11 @@ SimplePolynomial::SimplePolynomial() {
 }
 
 SimplePolynomial::SimplePolynomial(const Polynomial& polynomial) {
-    int size = polynomial.size();
-    this->mSize = size;
-    this->allocSize = size+1;
-    this->container = new bool[size+1];
-    for (int i = 0; i < size; i++) {
+    int power = polynomial.power();
+    this->mSize = power;
+    this->allocSize = power + 1;
+    this->container = new bool[power + 1];
+    for (int i = 0; i <= power; i++) {
         this->container[i] = polynomial.getTerm(i);
     }
 
@@ -41,7 +41,16 @@ SimplePolynomial::~SimplePolynomial() {
     delete[] this->container;
 }
 
-int SimplePolynomial::size() const {
+SimplePolynomial SimplePolynomial::operator=(const SimplePolynomial &origin) {
+    clear();
+    for (int i = 0; i <= origin.power(); i++) {
+        setTerm(i, origin.getTerm(i));
+    }
+
+    return *this;
+}
+
+int SimplePolynomial::power() const {
     return this->mSize;
 }
 
@@ -124,7 +133,7 @@ void SimplePolynomial::trim() {
 
 
 void SimplePolynomial::clear() {
-    for (int i = 0; i <= size(); i++) {
+    for (int i = 0; i <= power(); i++) {
         setTerm(i, false);
     }
 
@@ -132,7 +141,7 @@ void SimplePolynomial::clear() {
 }
 
 void SimplePolynomial::add(const Polynomial &operand) {
-    int maxBound = std::max(size(), operand.size());
+    int maxBound = std::max(power(), operand.power());
 
     for (int i = 0; i <= maxBound; i++) {
         setTerm(i, getTerm(i) ^ operand.getTerm(i));
@@ -140,7 +149,7 @@ void SimplePolynomial::add(const Polynomial &operand) {
 }
 
 void SimplePolynomial::product(const Polynomial &operand) {
-    int maxBound = size() + operand.size();
+    int maxBound = power() + operand.power();
 
     bool *out = new bool[maxBound+1];
 
@@ -163,19 +172,19 @@ void SimplePolynomial::product(const Polynomial &operand) {
 }
 
 void SimplePolynomial::division(const Polynomial &operand, Polynomial &remainder) {
-    if (operand.size() == 0 && operand.getTerm(0) == false) {
+    if (operand.power() == 0 && operand.getTerm(0) == false) {
         throw std::invalid_argument("Division by zero");
     }
 
-    for (int i = 0; i <= size(); i++) {
+    for (int i = 0; i <= power(); i++) {
         remainder.setTerm(i, getTerm(i));
         setTerm(i, false);
     }
 
     SimplePolynomial factor;
 
-    while (remainder.size() >= operand.size() && !remainder.isZero()) {
-        factor.setTerm(remainder.size() - operand.size(), true);
+    while (remainder.power() >= operand.power() && !remainder.isZero()) {
+        factor.setTerm(remainder.power() - operand.power(), true);
         add(factor);
 
         factor.product(operand);
