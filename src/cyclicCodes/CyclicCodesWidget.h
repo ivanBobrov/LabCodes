@@ -3,8 +3,8 @@
 
 #include <QtWidgets>
 #include <string>
-
 #include "CyclicLabView.h"
+#include "CyclicCodesLab.h"
 
 class CyclicCodesWidget : public QWidget, public CyclicLabView {
 
@@ -15,7 +15,7 @@ private:
     QLabel *label;
 
 public:
-    CyclicCodesWidget();
+    CyclicCodesWidget(CyclicCodesLab &lab);
 
     void setLabel(std::string &label);
 };

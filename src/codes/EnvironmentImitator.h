@@ -10,7 +10,7 @@ private:
     static double getRandomDouble(double min, double max);
 public:
     static void randomize();
-    static void sendMessage(Message &message, double corruptionProbability);
+    static int sendMessage(Message &message, double corruptionProbability);
 };
 
 

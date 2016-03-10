@@ -15,8 +15,8 @@ private:
 
 public:
     SimplePolynomial();
-    SimplePolynomial(int polynomialPower, const bool* values);
     SimplePolynomial(const Polynomial& polynomial);
+    SimplePolynomial(int polynomialPower, const bool* values);
     ~SimplePolynomial();
 
     SimplePolynomial operator=(const SimplePolynomial &origin);
@@ -24,10 +24,11 @@ public:
 
     virtual int power() const;
     virtual bool getTerm(int power) const;
-    virtual std::string toString() const;
     virtual void setTerm(int power, bool value);
+    virtual std::string toString() const;
 
     virtual bool isZero();
+    virtual bool equals(const Polynomial& operand);
     virtual void clear();
 
     virtual void add(const Polynomial &operand);

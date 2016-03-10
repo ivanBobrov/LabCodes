@@ -82,11 +82,6 @@ void SimplePolynomial::setTerm(int power, bool value) {
     }
 }
 
-
-bool SimplePolynomial::isZero() {
-    return mSize == 0 && !getTerm(0);
-}
-
 std::string SimplePolynomial::toString() const {
     std::string representation;
     for (int i = 0; i <= this->mSize; i++) {
@@ -101,36 +96,23 @@ std::string SimplePolynomial::toString() const {
     return representation;
 }
 
-void SimplePolynomial::reAllocate(int newSize) {
-    if (newSize == this->allocSize) {
-        return;
-    }
-
-    bool* newContainer = new bool[newSize];
-    int bound = newSize > this->allocSize ? this->allocSize : newSize;
-    for (int i = 0; i < bound; i++) {
-        newContainer[i] = this->container[i];
-    }
-
-    delete[] this->container;
-    this->container = newContainer;
-    this->allocSize = newSize;
+bool SimplePolynomial::isZero() {
+    return mSize == 0 && !getTerm(0);
 }
 
-void SimplePolynomial::trim() {
-    int lastPositivePower = 0;
+bool SimplePolynomial::equals(const Polynomial &operand) {
+    if (power() != operand.power()) {
+        return false;
+    }
 
-    for (int i = 0; i < allocSize; i++) {
-        if (container[i]) {
-            lastPositivePower = i;
+    for (int i = 0; i <= power(); i++) {
+        if (getTerm(i) != operand.getTerm(i)) {
+            return false;
         }
     }
 
-    if (lastPositivePower < mSize) {
-        mSize = lastPositivePower;
-    }
+    return true;
 }
-
 
 void SimplePolynomial::clear() {
     for (int i = 0; i <= power(); i++) {
@@ -191,5 +173,35 @@ void SimplePolynomial::division(const Polynomial &operand, Polynomial &remainder
         remainder.add(factor);
 
         factor.clear();
+    }
+}
+
+void SimplePolynomial::reAllocate(int newSize) {
+    if (newSize == this->allocSize) {
+        return;
+    }
+
+    bool* newContainer = new bool[newSize];
+    int bound = newSize > this->allocSize ? this->allocSize : newSize;
+    for (int i = 0; i < bound; i++) {
+        newContainer[i] = this->container[i];
+    }
+
+    delete[] this->container;
+    this->container = newContainer;
+    this->allocSize = newSize;
+}
+
+void SimplePolynomial::trim() {
+    int lastPositivePower = 0;
+
+    for (int i = 0; i < allocSize; i++) {
+        if (container[i]) {
+            lastPositivePower = i;
+        }
+    }
+
+    if (lastPositivePower < mSize) {
+        mSize = lastPositivePower;
     }
 }

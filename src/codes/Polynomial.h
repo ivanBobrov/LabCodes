@@ -33,6 +33,8 @@ public:
 
     virtual bool isZero() = 0;
 
+    virtual bool equals(const Polynomial& operand) = 0;
+
     virtual void clear() = 0;
 
     /**

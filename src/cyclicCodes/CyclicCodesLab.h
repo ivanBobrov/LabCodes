@@ -6,14 +6,18 @@
 #include <Message.h>
 #include <CodeConverter.h>
 #include "CyclicLabView.h"
+#include "LabTaskRunner.h"
+#include "CyclicLabTask.h"
 
 class CyclicCodesLab {
 
 private:
-    CyclicLabView &labView;
+    CyclicLabView *labView;
 
 public:
-    CyclicCodesLab(CyclicLabView &view);
+    CyclicCodesLab();
+
+    void setCyclicLabView(CyclicLabView &view);
 
 };
 

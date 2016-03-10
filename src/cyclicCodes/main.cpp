@@ -7,8 +7,10 @@
 int main(int argc, char *argv[]) {
     QApplication application(argc, argv);
 
+    CyclicCodesLab model;
     CyclicCodesWidget widget;
-    CyclicCodesLab model(widget);
+    
+    
     widget.show();
 
     return application.exec();

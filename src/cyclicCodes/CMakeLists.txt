@@ -1,8 +1,11 @@
 set(LAB_SOURCE
-    main.cpp
-    CyclicCodesWidget.cpp
-    CyclicCodesLab.cpp
-)
+        main.cpp
+        CyclicCodesWidget.cpp
+        CyclicCodesLab.cpp
+        LabTaskRunner.cpp
+        CyclicLabResult.cpp
+        CyclicLabTask.cpp
+        )
 
 if (Boost_FOUND)
     include_directories(${Boost_INCLUDE_DIRS})
