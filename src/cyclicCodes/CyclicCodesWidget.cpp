@@ -1,15 +1,24 @@
 #include "CyclicCodesWidget.h"
 
-CyclicCodesWidget::CyclicCodesWidget(CyclicCodesLab &lab) {
-    QVBoxLayout layout;
-    //QLabel *label = new QLabel("Hello, world!", this);
-    this->label = new QLabel("asasa", this);
-    layout.addWidget(this->label);
+CyclicCodesWidget::CyclicCodesWidget(ICyclicCodesLab &lab) {
+    this->lab = &lab;
 
-    this->setLayout(&layout);
+    QVBoxLayout *layout = new QVBoxLayout;
+    this->label = new QLabel("asasas");
+    this->button = new QPushButton("Нажми меня");
+    QObject::connect(button, SIGNAL(clicked()), this, SLOT(onButtonClick()));
+
+    layout->addWidget(this->label);
+    layout->addWidget(this->button);
+
+    this->setLayout(layout);
 }
 
 void CyclicCodesWidget::setLabel(std::string &text) {
     QString string = QString::fromUtf8(text.c_str());
     label->setText(string);
+}
+
+void CyclicCodesWidget::onButtonClick() {
+    lab->buttonStartClicked();
 }

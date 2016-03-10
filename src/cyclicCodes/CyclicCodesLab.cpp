@@ -1,7 +1,11 @@
 #include "CyclicCodesLab.h"
 
 CyclicCodesLab::CyclicCodesLab() {
-    /*bool arrOne[] = {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+
+}
+
+void CyclicCodesLab::buttonStartClicked() {
+    bool arrOne[] = {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
     bool arrTwo[] = {1, 1, 0, 1};
     SimplePolynomial polynomialOne(15, arrOne);
     SimplePolynomial polynomialTwo(3, arrTwo);
@@ -23,7 +27,10 @@ CyclicCodesLab::CyclicCodesLab() {
     result.add(labTask4.getResult());
 
     std::string label = std::to_string(result.getReceivedCorrectly());
-    view.setLabel(label);*/
+
+    if (labView != nullptr) {
+        labView->setLabel(label);
+    }
 }
 
 void CyclicCodesLab::setCyclicLabView(CyclicLabView &view) {

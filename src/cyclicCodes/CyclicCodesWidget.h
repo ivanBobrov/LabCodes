@@ -11,13 +11,19 @@ class CyclicCodesWidget : public QWidget, public CyclicLabView {
 Q_OBJECT
 
 private:
+    ICyclicCodesLab *lab;
 
     QLabel *label;
+    QPushButton *button;
 
 public:
-    CyclicCodesWidget(CyclicCodesLab &lab);
+    CyclicCodesWidget(ICyclicCodesLab &lab);
 
     void setLabel(std::string &label);
+
+public slots:
+    void onButtonClick();
+
 };
 
 #endif

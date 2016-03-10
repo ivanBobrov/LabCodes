@@ -9,13 +9,20 @@
 #include "LabTaskRunner.h"
 #include "CyclicLabTask.h"
 
-class CyclicCodesLab {
+class ICyclicCodesLab {
+public:
+    virtual void buttonStartClicked() = 0;
+};
+
+class CyclicCodesLab : public ICyclicCodesLab {
 
 private:
-    CyclicLabView *labView;
+    CyclicLabView *labView = nullptr;
 
 public:
     CyclicCodesLab();
+
+    virtual void buttonStartClicked();
 
     void setCyclicLabView(CyclicLabView &view);
 
