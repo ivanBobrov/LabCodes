@@ -8,9 +8,9 @@ int main(int argc, char *argv[]) {
     QApplication application(argc, argv);
 
     CyclicCodesLab model;
-    CyclicCodesWidget widget(model);
+    //model.setNumberOfThreadsToUse(4);
 
-    model.setCyclicLabView(widget);
+    CyclicCodesWidget widget(model);
     widget.show();
 
     return application.exec();

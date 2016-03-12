@@ -2,10 +2,13 @@
 #define CODES_SIMPLE_POLYNOMIAL_H
 
 #include <string>
+#include <vector>
 #include <Polynomial.h>
 
 class SimplePolynomial : public Polynomial {
 private:
+    static const int DEFAULT_ALLOC_SIZE = 10;
+
     int mSize;
     int allocSize;
     bool *container;
@@ -17,6 +20,7 @@ public:
     SimplePolynomial();
     SimplePolynomial(const Polynomial& polynomial);
     SimplePolynomial(int polynomialPower, const bool* values);
+    SimplePolynomial(const std::vector<bool> &vector);
     ~SimplePolynomial();
 
     SimplePolynomial operator=(const SimplePolynomial &origin);

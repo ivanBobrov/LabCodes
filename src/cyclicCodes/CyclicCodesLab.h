@@ -5,27 +5,79 @@
 #include <SimplePolynomial.h>
 #include <Message.h>
 #include <CodeConverter.h>
-#include "CyclicLabView.h"
+#include <vector>
 #include "LabTaskRunner.h"
 #include "CyclicLabTask.h"
 
 class ICyclicCodesLab {
 public:
-    virtual void buttonStartClicked() = 0;
+
+    /**
+     * Starts send process for correspondence information and generator
+     * polynomials. Make sure <code>inform</code> and <code>generator</code>
+     * vectors are stored in little-endian format i.e. higher power after
+     * lower.
+     *
+     * @param inform reference to information array
+     * @param generator reference to generator array
+     * @param experimentsCount number of experiments to be done
+     * @param errorProbability probability of switching each particularly bit
+     *        during send process.
+     */
+    virtual void buttonStartClicked(const std::vector<bool> &inform, const std::vector<bool> &generator,
+                                    int experimentsCount, double errorProbability) = 0;
+
+    /**
+     * Method for obtaining lab results. It returns result object even if send
+     * process hasn't finished yet. In this case result will represent current
+     * status of send process.
+     *
+     * @return laboratory experiment results
+     */
+    virtual CyclicLabResult getResult() = 0;
+
+    /**
+     * EventListener is an interface for subscribing to lab events.
+     */
+    class EventListener {
+    public:
+
+        /**
+         * Event fires when all experiments are done. After that methods
+         * <code>getResult()</code> will no longer provide information about
+         * current task.
+         *
+         * @param result final experiment statistics
+         */
+        virtual void onSendProcessFinished(CyclicLabResult result) = 0;
+
+        virtual void setLabel(std::string label) = 0;
+    };
+
+
+    virtual void setEventListener(EventListener *listener) = 0;
 };
 
-class CyclicCodesLab : public ICyclicCodesLab {
 
+class CyclicCodesLab : public ICyclicCodesLab, public LabTask::OnCompleteListener {
 private:
-    CyclicLabView *labView = nullptr;
+    int taskNumberToRun = 1;
+    EventListener *view = nullptr;
+    LabTaskRunner *taskRunner = new LabTaskRunner;
+    std::vector<CyclicLabTask *> *labTaskList = new std::vector<CyclicLabTask *>;
 
 public:
     CyclicCodesLab();
+    ~CyclicCodesLab();
 
-    virtual void buttonStartClicked();
+    virtual void buttonStartClicked(const std::vector<bool> &inform, const std::vector<bool> &generator,
+                                    int experimentsCount, double errorProbability);
+    virtual CyclicLabResult getResult();
+    virtual void setEventListener(EventListener *listener);
 
-    void setCyclicLabView(CyclicLabView &view);
+    virtual void onTaskComplete();
 
+    void setNumberOfThreadsToUse(int threadNumber);
 };
 
 

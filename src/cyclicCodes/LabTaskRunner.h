@@ -6,19 +6,24 @@
 #include "CyclicLabResult.h"
 
 class LabTask {
-private:
-    bool finished = false;
-    boost::mutex finishedMutex;
-
 public:
     virtual void task() = 0;
 
-    bool isFinished() {
-        boost::lock_guard<boost::mutex> lock(finishedMutex);
-        return finished;
-    }
+    bool isFinished();
 
     void run();
+
+    class OnCompleteListener {
+    public:
+        virtual void onTaskComplete() = 0;
+    };
+
+    void setOnCompleteListener(OnCompleteListener *listener);
+
+private:
+    bool finished = false;
+    boost::mutex finishedMutex;
+    OnCompleteListener *completeListener = nullptr;
 };
 
 class LabTaskRunner {

@@ -5,6 +5,19 @@ void LabTask::run() {
     finishedMutex.lock();
     finished = true;
     finishedMutex.unlock();
+
+    if (completeListener != nullptr) {
+        completeListener->onTaskComplete();
+    }
+}
+
+bool LabTask::isFinished() {
+    boost::lock_guard<boost::mutex> lock(finishedMutex);
+    return finished;
+}
+
+void LabTask::setOnCompleteListener(OnCompleteListener *listener) {
+    this->completeListener = listener;
 }
 
 LabTaskRunner::LabTaskRunner() {

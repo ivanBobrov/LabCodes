@@ -2,7 +2,7 @@
 #include "SimplePolynomial.h"
 
 SimplePolynomial::SimplePolynomial() {
-    int allocSize = 10;
+    int allocSize = DEFAULT_ALLOC_SIZE;
 
     this->container = new bool[allocSize];
     std::fill(this->container, this->container + allocSize, 0);
@@ -24,7 +24,7 @@ SimplePolynomial::SimplePolynomial(const Polynomial& polynomial) {
 
 SimplePolynomial::SimplePolynomial(int polynomialPower, const bool *values) {
     if (polynomialPower < 0) {
-        throw std::invalid_argument("polynomial length must be positive number");
+        throw std::invalid_argument("polynomial power must be positive number");
     }
 
     this->mSize = polynomialPower;
@@ -32,6 +32,27 @@ SimplePolynomial::SimplePolynomial(int polynomialPower, const bool *values) {
     this->container = new bool[polynomialPower + 1];
     for (int i = 0; i <= polynomialPower; i++) {
         this->container[i] = values[i];
+    }
+
+    trim();
+}
+
+SimplePolynomial::SimplePolynomial(const std::vector<bool> &vector) {
+    if (vector.empty()) {
+        this->mSize = 0;
+        this->allocSize = DEFAULT_ALLOC_SIZE;
+        this->container = new bool[DEFAULT_ALLOC_SIZE];
+        std::fill(this->container, this->container + DEFAULT_ALLOC_SIZE, 0);
+
+        return;
+    }
+
+    int polynomialPower = (int) vector.size() - 1;
+    this->mSize = polynomialPower;
+    this->allocSize = polynomialPower + 1;
+    this->container = new bool[polynomialPower + 1];
+    for (int i = 0; i <= polynomialPower; i++) {
+        this->container[i] = vector[i];
     }
 
     trim();

@@ -4,35 +4,66 @@ CyclicCodesLab::CyclicCodesLab() {
 
 }
 
-void CyclicCodesLab::buttonStartClicked() {
-    bool arrOne[] = {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-    bool arrTwo[] = {1, 1, 0, 1};
-    SimplePolynomial polynomialOne(15, arrOne);
-    SimplePolynomial polynomialTwo(3, arrTwo);
+CyclicCodesLab::~CyclicCodesLab() {
+    delete taskRunner;
 
-    LabTaskRunner taskRunner;
-    CyclicLabTask labTask1(polynomialOne, polynomialTwo, 20000, 0.0001);
-    CyclicLabTask labTask2(polynomialOne, polynomialTwo, 20000, 0.0001);
-    CyclicLabTask labTask3(polynomialOne, polynomialTwo, 20000, 0.0001);
-    CyclicLabTask labTask4(polynomialOne, polynomialTwo, 20000, 0.0001);
-    taskRunner.submitTask(labTask1);
-    taskRunner.submitTask(labTask2);
-    taskRunner.submitTask(labTask3);
-    taskRunner.submitTask(labTask4);
-    taskRunner.joinAllThreads();
+    if (!labTaskList->empty()) {
+        for (std::vector<CyclicLabTask *>::iterator it = labTaskList->begin(); it < labTaskList->end(); it++) {
+            delete (*it);
+        }
+    }
 
-    CyclicLabResult result = labTask1.getResult();
-    result.add(labTask2.getResult());
-    result.add(labTask3.getResult());
-    result.add(labTask4.getResult());
+    delete labTaskList;
+}
 
-    std::string label = std::to_string(result.getReceivedCorrectly());
+void CyclicCodesLab::buttonStartClicked(const std::vector<bool> &inform, const std::vector<bool> &generator,
+                                        int experimentsCount, double errorProbability) {
 
-    if (labView != nullptr) {
-        labView->setLabel(label);
+    SimplePolynomial informPoly(inform);
+    SimplePolynomial genPoly(generator);
+
+    int taskPart = static_cast<int> (std::floor(experimentsCount / taskNumberToRun));
+
+    // First task may have different experiments count
+    int firstExperimentsCount = experimentsCount - (taskPart * (taskNumberToRun - 1));
+    CyclicLabTask *labTaskFirst = new CyclicLabTask(informPoly, genPoly, firstExperimentsCount, errorProbability);
+    labTaskFirst->setOnCompleteListener(this);
+    labTaskList->push_back(labTaskFirst);
+
+    for (int i = 1; i < taskNumberToRun; i++) {
+        CyclicLabTask *task = new CyclicLabTask(informPoly, genPoly, taskPart, errorProbability);
+        task->setOnCompleteListener(this);
+        labTaskList->push_back(task);
+    }
+
+    for (std::vector<CyclicLabTask *>::iterator it = labTaskList->begin(); it < labTaskList->end(); it++) {
+        CyclicLabTask *task = *it;
+        taskRunner->submitTask(*task);
     }
 }
 
-void CyclicCodesLab::setCyclicLabView(CyclicLabView &view) {
-    this->labView = &view;
+CyclicLabResult CyclicCodesLab::getResult() {
+    CyclicLabResult result(0, 0, 0, 0, 0);
+
+    for (std::vector<CyclicLabTask *>::iterator it = labTaskList->begin(); it < labTaskList->end(); it++) {
+        CyclicLabTask *task = *it;
+        result.add(task->getResult());
+    }
+
+    return result;
+}
+
+void CyclicCodesLab::setEventListener(EventListener *listener) {
+    this->view = listener;
+}
+
+void CyclicCodesLab::onTaskComplete() {
+    std::string str = std::to_string(getResult().getErrorDetected());
+    view->setLabel(str);
+}
+
+void CyclicCodesLab::setNumberOfThreadsToUse(int threadNumber) {
+    if (threadNumber >= 1) {
+        taskNumberToRun = threadNumber;
+    }
 }
