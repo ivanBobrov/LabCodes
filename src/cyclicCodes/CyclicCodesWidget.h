@@ -29,11 +29,25 @@ private:
         }
     };
 
+    static const int UPDATE_TIMER_DELAY_MILLIS = 100;
+
     ICyclicCodesLab *lab;
     EventHandler *eventHandler;
 
-    QLabel *label;
-    QPushButton *button;
+    QTimer *updateTimer;
+
+    QPushButton *startButton;
+    QLabel *receivedCorrectlyResult;
+    QLabel *experimentsDoneResult;
+    QLabel *errorDetectedResult;
+    QLabel *errorMissedResult;
+    QProgressBar *progressBar;
+
+    void createLayouts();
+    QLayout* createInputLayout();
+    QLayout* createCommandLayout();
+    QLayout* createOutputLayout();
+    QLayout* createProgressBarLayout();
 
 public:
     CyclicCodesWidget(ICyclicCodesLab &lab);
@@ -42,6 +56,7 @@ public:
 public slots:
     void onButtonClick();
     void onSendProcessFinished(CyclicLabResult result);
+    void updateResult();
     void setInfo(std::string label);
 
 };
