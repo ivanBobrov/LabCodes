@@ -1,5 +1,8 @@
 #include "CyclicLabResult.h"
 
+CyclicLabResult::CyclicLabResult() : CyclicLabResult(0, 0, 0, 0, 0) {
+
+}
 
 CyclicLabResult::CyclicLabResult(int experimentCount, int experimentDone, int receivedCorrectly,
                                  int errorDetected, int missedErrors) {
@@ -8,6 +11,14 @@ CyclicLabResult::CyclicLabResult(int experimentCount, int experimentDone, int re
     this->receivedCorrectly = receivedCorrectly;
     this->errorDetected = errorDetected;
     this->missedErrors = missedErrors;
+}
+
+CyclicLabResult::CyclicLabResult(const CyclicLabResult &origin) {
+    this->experimentsCount = origin.experimentsCount;
+    this->experimentsDone = origin.experimentsDone;
+    this->receivedCorrectly = origin.receivedCorrectly;
+    this->errorDetected = origin.errorDetected;
+    this->missedErrors = origin.missedErrors;
 }
 
 int CyclicLabResult::getExperimentsCount() const {

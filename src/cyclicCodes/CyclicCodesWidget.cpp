@@ -2,6 +2,7 @@
 
 CyclicCodesWidget::CyclicCodesWidget(ICyclicCodesLab &lab) : lab(&lab) {
     qRegisterMetaType<std::string>();
+    qRegisterMetaType<CyclicLabResult>();
 
     eventHandler = new EventHandler(this);
     lab.setEventListener(eventHandler);
@@ -21,7 +22,7 @@ CyclicCodesWidget::~CyclicCodesWidget() {
     delete eventHandler;
 }
 
-void CyclicCodesWidget::setLabel(std::string text) {
+void CyclicCodesWidget::setInfo(std::string text) {
     QString string = QString::fromUtf8(text.c_str());
     label->setText(string);
 }
@@ -40,9 +41,9 @@ void CyclicCodesWidget::onButtonClick() {
     gen.push_back(true);
     gen.push_back(true);
 
-    lab->buttonStartClicked(vector, gen, 20000, 0.0001);
+    lab->startProcess(vector, gen, 20000, 0.0001);
 }
 
 void CyclicCodesWidget::onSendProcessFinished(CyclicLabResult result) {
-
+    label->setText("Hahhah. It works!");
 }

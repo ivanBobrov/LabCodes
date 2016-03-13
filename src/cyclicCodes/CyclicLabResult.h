@@ -11,8 +11,10 @@ private:
     int missedErrors;
 
 public:
+    CyclicLabResult();
     CyclicLabResult(int experimentCount, int experimentDone, int receivedCorrectly,
                     int errorDetected, int missedErrors);
+    CyclicLabResult(const CyclicLabResult &origin);
 
     int getExperimentsCount() const;
 

@@ -6,6 +6,7 @@
 #include "CyclicCodesLab.h"
 
 Q_DECLARE_METATYPE (std::string)
+Q_DECLARE_METATYPE (CyclicLabResult)
 
 class CyclicCodesWidget : public QWidget {
 
@@ -23,8 +24,8 @@ private:
             QMetaObject::invokeMethod(mInstance, "onSendProcessFinished", Q_ARG(CyclicLabResult, result));
         }
 
-        virtual void setLabel(std::string label) {
-            QMetaObject::invokeMethod(mInstance, "setLabel", Q_ARG(std::string, label));
+        virtual void setInfo(std::string label) {
+            QMetaObject::invokeMethod(mInstance, "setInfo", Q_ARG(std::string, label));
         }
     };
 
@@ -41,7 +42,7 @@ public:
 public slots:
     void onButtonClick();
     void onSendProcessFinished(CyclicLabResult result);
-    void setLabel(std::string label);
+    void setInfo(std::string label);
 
 };
 

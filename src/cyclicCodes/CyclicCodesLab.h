@@ -13,6 +13,11 @@ class ICyclicCodesLab {
 public:
 
     /**
+     * @return true if cyclicCodesLab object is ready to start send process.
+     */
+    virtual bool canStartProcess() = 0;
+
+    /**
      * Starts send process for correspondence information and generator
      * polynomials. Make sure <code>inform</code> and <code>generator</code>
      * vectors are stored in little-endian format i.e. higher power after
@@ -24,8 +29,8 @@ public:
      * @param errorProbability probability of switching each particularly bit
      *        during send process.
      */
-    virtual void buttonStartClicked(const std::vector<bool> &inform, const std::vector<bool> &generator,
-                                    int experimentsCount, double errorProbability) = 0;
+    virtual void startProcess(const std::vector<bool> &inform, const std::vector<bool> &generator,
+                              int experimentsCount, double errorProbability) = 0;
 
     /**
      * Method for obtaining lab results. It returns result object even if send
@@ -51,17 +56,22 @@ public:
          */
         virtual void onSendProcessFinished(CyclicLabResult result) = 0;
 
-        virtual void setLabel(std::string label) = 0;
+        virtual void setInfo(std::string label) = 0;
     };
 
 
     virtual void setEventListener(EventListener *listener) = 0;
 };
 
+enum class CodesLabState {
+    READY,
+    RUNNING
+};
 
 class CyclicCodesLab : public ICyclicCodesLab, public LabTask::OnCompleteListener {
 private:
     int taskNumberToRun = 1;
+    CodesLabState state = CodesLabState::READY;
     EventListener *view = nullptr;
     LabTaskRunner *taskRunner = new LabTaskRunner;
     std::vector<CyclicLabTask *> *labTaskList = new std::vector<CyclicLabTask *>;
@@ -70,8 +80,9 @@ public:
     CyclicCodesLab();
     ~CyclicCodesLab();
 
-    virtual void buttonStartClicked(const std::vector<bool> &inform, const std::vector<bool> &generator,
-                                    int experimentsCount, double errorProbability);
+    virtual bool canStartProcess();
+    virtual void startProcess(const std::vector<bool> &inform, const std::vector<bool> &generator,
+                              int experimentsCount, double errorProbability);
     virtual CyclicLabResult getResult();
     virtual void setEventListener(EventListener *listener);
 

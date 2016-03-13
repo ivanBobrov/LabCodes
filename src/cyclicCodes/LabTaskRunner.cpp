@@ -25,12 +25,14 @@ LabTaskRunner::LabTaskRunner() {
 }
 
 LabTaskRunner::~LabTaskRunner() {
+    joinAllThreads();
     delete threadList;
 }
 
 void LabTaskRunner::submitTask(LabTask &task) {
     boost::thread *worker = new boost::thread(boost::bind(&LabTask::run, &task));
     threadList->push_back(worker);
+    removeFinishedThread();
 }
 
 void LabTaskRunner::removeFinishedThread() {
