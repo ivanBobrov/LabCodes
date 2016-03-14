@@ -20,8 +20,7 @@ public:
     /**
      * Starts send process for correspondence information and generator
      * polynomials. Make sure <code>inform</code> and <code>generator</code>
-     * vectors are stored in little-endian format i.e. higher power after
-     * lower.
+     * vectors are stored in little-endian format i.e. lower power first.
      *
      * @param inform reference to information array
      * @param generator reference to generator array

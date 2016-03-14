@@ -29,7 +29,7 @@ private:
         }
     };
 
-    static const int UPDATE_TIMER_DELAY_MILLIS = 100;
+    static const int UPDATE_TIMER_DELAY_MILLIS = 50;
 
     ICyclicCodesLab *lab;
     EventHandler *eventHandler;
@@ -41,13 +41,18 @@ private:
     QLabel *experimentsDoneResult;
     QLabel *errorDetectedResult;
     QLabel *errorMissedResult;
+    QLineEdit *informationPolyEdit;
+    QComboBox *generatorListChooser;
+    QLineEdit *experimentsCountEdit;
+    QLineEdit *probabilityEdit;
     QProgressBar *progressBar;
 
     void createLayouts();
-    QLayout* createInputLayout();
-    QLayout* createCommandLayout();
-    QLayout* createOutputLayout();
-    QLayout* createProgressBarLayout();
+    QGroupBox * createInputLayout();
+    QGroupBox * createCommandLayout();
+    QGroupBox * createOutputLayout();
+
+    void parseBoolVector(std::vector<bool> &output, const QString &text);
 
 public:
     CyclicCodesWidget(ICyclicCodesLab &lab);

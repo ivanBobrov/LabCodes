@@ -1,3 +1,4 @@
+#include <QtGui/qvalidator.h>
 #include "CyclicCodesWidget.h"
 
 CyclicCodesWidget::CyclicCodesWidget(ICyclicCodesLab &lab) : lab(&lab) {
@@ -20,51 +21,80 @@ CyclicCodesWidget::~CyclicCodesWidget() {
 void CyclicCodesWidget::createLayouts() {
     QGridLayout *grid = new QGridLayout();
 
-    QLayout *inputLayout = createInputLayout();
-    QLayout *commandLayout = createCommandLayout();
-    QLayout *outputLayout = createOutputLayout();
-    QLayout *progressBarLayout = createProgressBarLayout();
+    QGroupBox *inputBox = createInputLayout();
+    QGroupBox *commandLayout = createCommandLayout();
+    QGroupBox *outputLayout = createOutputLayout();
 
-    grid->addLayout(inputLayout, 0, 0, 2, 1);
-    grid->addLayout(commandLayout, 2, 0, 1, 1);
-    grid->addLayout(progressBarLayout, 3, 0, 1, 1);
-    grid->addLayout(outputLayout, 0, 1, 4, 1);
+    inputBox->setMinimumWidth(400);
+    inputBox->setMaximumWidth(600);
+    commandLayout->setMinimumWidth(400);
+    commandLayout->setMaximumWidth(600);
+    outputLayout->setMinimumWidth(300);
+    outputLayout->setMaximumWidth(500);
+
+    grid->addWidget(inputBox, 0, 0, 2, 1);
+    grid->addWidget(commandLayout, 2, 0, 1, 1);
+    grid->addWidget(outputLayout, 0, 1, 3, 1);
+
+    grid->setAlignment(Qt::AlignCenter);
+    //grid->setSpacing(2);
+    //grid->setHorizontalSpacing(2);
+
+
 
     this->setLayout(grid);
 }
 
-QLayout* CyclicCodesWidget::createInputLayout() {
+QGroupBox * CyclicCodesWidget::createInputLayout() {
+    QGroupBox *inputGroupBox = new QGroupBox("1. Введите исходные данные");
     QFormLayout *formLayout = new QFormLayout;
 
+    QRegExp polynomialRegExp("[01]{1,16}");
+    QRegExp probabilityRegExp("0\\.\\d{0,9}");
+
     QLabel *informLabel = new QLabel("Информационный полином: ");
-    QLineEdit *informEdit = new QLineEdit;
+    informationPolyEdit = new QLineEdit("10010101");
+    informationPolyEdit->setValidator(new QRegExpValidator(polynomialRegExp, this));
+
     QLabel *genLabel = new QLabel("Порождающий полином: ");
-    QLineEdit *genEdit = new QLineEdit;
+    generatorListChooser = new QComboBox();
+    generatorListChooser->addItem("1101");
+    generatorListChooser->addItem("1001");
+
     QLabel *probLabel = new QLabel("Вероятность искажения: ");
-    QLineEdit *probEdit = new QLineEdit;
-    QLabel *expCountLabel = new QLabel("Количество экспериментов: ");
-    QLineEdit *expCountEdit = new QLineEdit;
+    probabilityEdit = new QLineEdit("0.0001");
+    probabilityEdit->setValidator(new QRegExpValidator(probabilityRegExp, this));
 
-    formLayout->addRow(informLabel, informEdit);
-    formLayout->addRow(genLabel, genEdit);
-    formLayout->addRow(probLabel, probEdit);
-    formLayout->addRow(expCountLabel, expCountEdit);
+    QLabel *expCountLabel = new QLabel("Количество испытаний: ");
+    experimentsCountEdit = new QLineEdit("1000000");
+    experimentsCountEdit->setValidator(new QIntValidator(1, 1000000000, this));
 
-    return formLayout;
+    formLayout->addRow(informLabel, informationPolyEdit);
+    formLayout->addRow(genLabel, generatorListChooser);
+    formLayout->addRow(probLabel, probabilityEdit);
+    formLayout->addRow(expCountLabel, experimentsCountEdit);
+
+    inputGroupBox->setLayout(formLayout);
+    return inputGroupBox;
 }
 
-QLayout *CyclicCodesWidget::createCommandLayout() {
-    QHBoxLayout *layout = new QHBoxLayout;
+QGroupBox * CyclicCodesWidget::createCommandLayout() {
+    QGroupBox *commandBox = new QGroupBox("2. Начать работу");
+    QGridLayout *layout = new QGridLayout;
 
     startButton = new QPushButton("Начать");
     QObject::connect(startButton, SIGNAL(clicked()), this, SLOT(onButtonClick()));
+    progressBar = new QProgressBar;
 
-    layout->addWidget(startButton);
+    layout->addWidget(startButton, 0, 0, 1, 1);
+    layout->addWidget(progressBar, 1, 0, 1, 1);
 
-    return layout;
+    commandBox->setLayout(layout);
+    return commandBox;
 }
 
-QLayout *CyclicCodesWidget::createOutputLayout() {
+QGroupBox * CyclicCodesWidget::createOutputLayout() {
+    QGroupBox *outputBox = new QGroupBox("3. Результаты");
     QFormLayout *formLayout = new QFormLayout;
 
     QLabel *experimentsDoneLabel = new QLabel("Количесвто испытаний: ");
@@ -81,35 +111,36 @@ QLayout *CyclicCodesWidget::createOutputLayout() {
     formLayout->addRow(errorDetectedLabel, errorDetectedResult);
     formLayout->addRow(errorMissedLabel, errorMissedResult);
 
-    return formLayout;
+    outputBox->setLayout(formLayout);
+    return outputBox;
 }
 
-QLayout *CyclicCodesWidget::createProgressBarLayout() {
-    QHBoxLayout *layout = new QHBoxLayout;
-    progressBar = new QProgressBar;
-    layout->addWidget(progressBar);
-
-    return layout;
+void CyclicCodesWidget::parseBoolVector(std::vector<bool> &output, const QString &text) {
+    output.clear();
+    for (int i = text.length() - 1; i >= 0; --i) {
+        QChar symbol = text[i];
+        if (symbol == '0') {
+            output.push_back(false);
+        } else if (symbol == '1') {
+            output.push_back(true);
+        }
+    }
 }
 
 void CyclicCodesWidget::onButtonClick() {
     startButton->setEnabled(false);
 
     std::vector<bool> vector;
-    vector.push_back(true);
-    vector.push_back(false);
-    vector.push_back(true);
-    vector.push_back(false);
-    vector.push_back(false);
-    vector.push_back(true);
-    vector.push_back(true);
+    QString informationText = informationPolyEdit->text();
+    parseBoolVector(vector, informationText);
 
-    std::vector<bool> gen;
-    gen.push_back(true);
-    gen.push_back(true);
+    std::vector<bool> generatorVector;
+    QString generatorText = generatorListChooser->currentText();
+    parseBoolVector(generatorVector, generatorText);
 
-    int operationsCount = 1000000;
-    lab->startProcess(vector, gen, operationsCount, 0.0001);
+    int operationsCount = experimentsCountEdit->text().toInt();
+    double corruptionProbability = probabilityEdit->text().toDouble();
+    lab->startProcess(vector, generatorVector, operationsCount, corruptionProbability);
 
     progressBar->setMinimum(0);
     progressBar->setMaximum(operationsCount);
@@ -142,4 +173,5 @@ void CyclicCodesWidget::updateResult() {
 
 void CyclicCodesWidget::setInfo(std::string text) {
     QString string = QString::fromUtf8(text.c_str());
+    this->setWindowTitle(string);
 }
