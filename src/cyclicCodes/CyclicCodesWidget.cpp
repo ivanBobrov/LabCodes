@@ -12,6 +12,7 @@ CyclicCodesWidget::CyclicCodesWidget(ICyclicCodesLab &lab) : lab(&lab) {
     connect(updateTimer, SIGNAL(timeout()), this, SLOT(updateResult()));
 
     createLayouts();
+    onInputChanged();
 }
 
 CyclicCodesWidget::~CyclicCodesWidget() {
@@ -29,8 +30,8 @@ void CyclicCodesWidget::createLayouts() {
     inputBox->setMaximumWidth(600);
     commandLayout->setMinimumWidth(400);
     commandLayout->setMaximumWidth(600);
-    outputLayout->setMinimumWidth(300);
-    outputLayout->setMaximumWidth(500);
+    outputLayout->setMinimumWidth(500);
+    outputLayout->setMaximumWidth(700);
 
     grid->addWidget(inputBox, 0, 0, 2, 1);
     grid->addWidget(commandLayout, 2, 0, 1, 1);
@@ -49,13 +50,22 @@ QGroupBox * CyclicCodesWidget::createInputLayout() {
     QRegExp probabilityRegExp("0\\.\\d{0,9}");
 
     QLabel *informLabel = new QLabel("Информационный полином: ");
-    informationPolyEdit = new QLineEdit("10010101");
+    informationPolyEdit = new QLineEdit("10010111");
     informationPolyEdit->setValidator(new QRegExpValidator(polynomialRegExp, this));
+    QObject::connect(informationPolyEdit, SIGNAL(textChanged(const QString &)), this, SLOT(onInputChanged()));
 
     QLabel *genLabel = new QLabel("Порождающий полином: ");
     generatorListChooser = new QComboBox();
-    generatorListChooser->addItem("1101");
-    generatorListChooser->addItem("1001");
+    generatorListChooser->addItem("1100");
+    generatorListChooser->addItem("10100");
+    generatorListChooser->addItem("11010");
+    generatorListChooser->addItem("10010");
+    generatorListChooser->addItem("110011");
+    generatorListChooser->addItem("100011");
+    generatorListChooser->addItem("101100");
+    generatorListChooser->addItem("100001");
+
+    QObject::connect(generatorListChooser, SIGNAL(activated(int)), this, SLOT(onInputChanged()));
 
     QLabel *probLabel = new QLabel("Вероятность искажения: ");
     probabilityEdit = new QLineEdit("0.0001");
@@ -96,15 +106,18 @@ QGroupBox * CyclicCodesWidget::createOutputLayout() {
     QGroupBox *outputBox = new QGroupBox("3. Результаты");
     QFormLayout *formLayout = new QFormLayout;
 
+    QLabel *codedPolyLabel = new QLabel("Передаваемое сообщение: ");
     QLabel *experimentsDoneLabel = new QLabel("Количесвто испытаний: ");
     QLabel *receivedCorrectlyLabel = new QLabel("Принято без искажений: ");
     QLabel *errorDetectedLabel = new QLabel("Обнаружено ошибок");
     QLabel *errorMissedLabel = new QLabel("Пропущено ошибок");
+    codedPolyResult = new CyclicPolynomialLabel;
     experimentsDoneResult = new QLabel("0");
     receivedCorrectlyResult = new QLabel("0");
     errorDetectedResult = new QLabel("0");
     errorMissedResult = new QLabel("0");
 
+    formLayout->addRow(codedPolyLabel, codedPolyResult);
     formLayout->addRow(experimentsDoneLabel, experimentsDoneResult);
     formLayout->addRow(receivedCorrectlyLabel, receivedCorrectlyResult);
     formLayout->addRow(errorDetectedLabel, errorDetectedResult);
@@ -130,7 +143,8 @@ void CyclicCodesWidget::showResults(CyclicLabResult &result) {
     experimentsDoneResult->setText(QString::number(result.getExperimentsDone()));
     receivedCorrectlyResult->setText(QString::number(result.getReceivedCorrectly()));
     errorDetectedResult->setText(QString::number(result.getErrorDetected()));
-    errorMissedResult->setText(QString::number(result.getMissedErrors()));
+    errorMissedResult->setText(QString::number(result.getMissedErrorsUnrated()));
+
 }
 
 void CyclicCodesWidget::onButtonStartClick() {
@@ -164,6 +178,17 @@ void CyclicCodesWidget::onButtonStopClick() {
     if (lab->isRunning()) {
         lab->breakProcess();
     }
+}
+
+void CyclicCodesWidget::onInputChanged() {
+    std::vector<bool> informPoly;
+    std::vector<bool> genPoly;
+    std::vector<bool> coded;
+    parseBoolVector(informPoly, informationPolyEdit->text());
+    parseBoolVector(genPoly, generatorListChooser->currentText());
+
+    lab->getCodedPolynomial(informPoly, genPoly, coded);
+    codedPolyResult->setPolynomial(coded, (int) genPoly.size() - 1);
 }
 
 void CyclicCodesWidget::onSendProcessFinished(CyclicLabResult result) {

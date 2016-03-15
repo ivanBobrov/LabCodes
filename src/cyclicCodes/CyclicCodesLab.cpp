@@ -24,6 +24,15 @@ bool CyclicCodesLab::isRunning() {
     return state == CodesLabState::RUNNING;
 }
 
+void CyclicCodesLab::getCodedPolynomial(const std::vector<bool> &original, const std::vector<bool> &generator,
+                                        std::vector<bool> &output) {
+    SimplePolynomial informPoly(original);
+    SimplePolynomial genPoly(generator);
+    Message codedMessage = CodeConverter::codeCRC(informPoly, genPoly);
+
+    output = codedMessage.toBoolVector();
+}
+
 void CyclicCodesLab::startProcess(const std::vector<bool> &inform, const std::vector<bool> &generator,
                                   int experimentsCount, double errorProbability) {
     if (state != CodesLabState::READY) {
@@ -82,7 +91,8 @@ CyclicLabResult CyclicCodesLab::getResult() {
 
     for (std::vector<CyclicLabTask *>::iterator it = labTaskList->begin(); it < labTaskList->end(); ++it) {
         CyclicLabTask *task = *it;
-        result.add(task->getResult());
+        CyclicLabResult labResult = task->getResult();
+        result.add(labResult);
     }
 
     return result;

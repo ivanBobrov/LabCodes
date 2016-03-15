@@ -23,6 +23,12 @@ public:
     virtual bool isRunning() = 0;
 
     /**
+     * Returns coded representation of polynomial.
+     */
+    virtual void getCodedPolynomial(const std::vector<bool> &original, const std::vector<bool> &generator,
+                                    std::vector<bool> &output) = 0;
+
+    /**
      * Starts send process for correspondence information and generator
      * polynomials. Make sure <code>inform</code> and <code>generator</code>
      * vectors are stored in little-endian format i.e. lower power first.
@@ -107,6 +113,8 @@ public:
 
     virtual bool canStartProcess();
     virtual bool isRunning();
+    virtual void getCodedPolynomial(const std::vector<bool> &original, const std::vector<bool> &generator,
+                                    std::vector<bool> &output);
     virtual void startProcess(const std::vector<bool> &inform, const std::vector<bool> &generator,
                               int experimentsCount, double errorProbability);
     virtual void breakProcess();

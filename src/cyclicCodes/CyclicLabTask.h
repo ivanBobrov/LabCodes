@@ -12,6 +12,8 @@
 class CyclicLabTask : public LabTask {
 
 private:
+    static const int MISSED_ERROR_RATE_COUNT = 6;
+
     Polynomial *information;
     Polynomial *generator;
     int experimentCount;
@@ -21,6 +23,7 @@ private:
     int receivedCorrectly = 0;
     int errorDetected = 0;
     int missedError = 0;
+    std::vector<int> *missedErrorRate;
 
     bool interruptionFlag = false;
     boost::mutex statisticsMutex;

@@ -6,6 +6,7 @@ CyclicLabTask::CyclicLabTask(const Polynomial &information, const Polynomial &ge
     this->generator = new SimplePolynomial(generator);
     this->experimentCount = experimentCount;
     this->errorProbability = errorProbability;
+    this->missedErrorRate = new std::vector<int>(MISSED_ERROR_RATE_COUNT);
 }
 
 CyclicLabTask::CyclicLabTask(const CyclicLabTask &origin) {
@@ -13,11 +14,13 @@ CyclicLabTask::CyclicLabTask(const CyclicLabTask &origin) {
     this->generator = new SimplePolynomial(*origin.generator);
     this->experimentCount = origin.experimentCount;
     this->errorProbability = origin.errorProbability;
+    this->missedErrorRate = new std::vector<int>(*origin.missedErrorRate);
 }
 
 CyclicLabTask::~CyclicLabTask() {
     delete information;
     delete generator;
+    delete missedErrorRate;
 }
 
 void CyclicLabTask::task() {
@@ -39,6 +42,9 @@ void CyclicLabTask::task() {
                 receivedCorrectly++;
             } else {
                 missedError++;
+                unsigned long missedErrorRateIndex = errorCount < MISSED_ERROR_RATE_COUNT ?
+                                                     (unsigned long) errorCount : 0;
+                missedErrorRate->at(missedErrorRateIndex)++;
             }
         } else {
             errorDetected++;
@@ -58,7 +64,8 @@ void CyclicLabTask::task() {
 
 CyclicLabResult CyclicLabTask::getResult() {
     statisticsMutex.lock();
-    CyclicLabResult labResult(experimentCount, experimentDone, receivedCorrectly, errorDetected, missedError);
+    CyclicLabResult labResult(experimentCount, experimentDone, receivedCorrectly,
+                              errorDetected, missedError, *missedErrorRate);
     statisticsMutex.unlock();
 
     return labResult;

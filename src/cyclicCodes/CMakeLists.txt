@@ -5,6 +5,7 @@ set(LAB_SOURCE
         LabTaskRunner.cpp
         CyclicLabResult.cpp
         CyclicLabTask.cpp
+        CyclicPolynomialLabel.cpp
         )
 
 if (Boost_FOUND)

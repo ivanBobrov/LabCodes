@@ -4,6 +4,7 @@
 #include <QtWidgets>
 #include <string>
 #include "CyclicCodesLab.h"
+#include "CyclicPolynomialLabel.h"
 
 Q_DECLARE_METATYPE (std::string)
 Q_DECLARE_METATYPE (CyclicLabResult)
@@ -51,6 +52,7 @@ private:
     QLineEdit *experimentsCountEdit;
     QLineEdit *probabilityEdit;
     QProgressBar *progressBar;
+    CyclicPolynomialLabel *codedPolyResult;
 
     void createLayouts();
     QGroupBox * createInputLayout();
@@ -67,6 +69,7 @@ public:
 public slots:
     void onButtonStartClick();
     void onButtonStopClick();
+    void onInputChanged();
     void onSendProcessFinished(CyclicLabResult result);
     void onSendProcessBreak(CyclicLabResult result);
     void updateResult();
