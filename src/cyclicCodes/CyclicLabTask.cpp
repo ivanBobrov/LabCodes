@@ -45,6 +45,14 @@ void CyclicLabTask::task() {
         }
 
         statisticsMutex.unlock();
+
+        interruptionMutex.lock();
+        bool interrupt = interruptionFlag;
+        interruptionMutex.unlock();
+
+        if (interrupt) {
+            throw boost::thread_interrupted();
+        }
     }
 }
 
@@ -54,4 +62,9 @@ CyclicLabResult CyclicLabTask::getResult() {
     statisticsMutex.unlock();
 
     return labResult;
+}
+
+void CyclicLabTask::interrupt() {
+    boost::lock_guard<boost::mutex> lock(interruptionMutex);
+    interruptionFlag = true;
 }

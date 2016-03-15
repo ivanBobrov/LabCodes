@@ -22,7 +22,9 @@ private:
     int errorDetected = 0;
     int missedError = 0;
 
+    bool interruptionFlag = false;
     boost::mutex statisticsMutex;
+    boost::mutex interruptionMutex;
 
 public:
     CyclicLabTask(const Polynomial &information, const Polynomial &generator,
@@ -32,6 +34,7 @@ public:
 
     virtual void task();
     CyclicLabResult getResult();
+    void interrupt();
 };
 
 

@@ -5,6 +5,6 @@ set(CODES_SOURCES
     EnvironmentImitator.cpp
     )
 
-add_library(codesLib ${CODES_SOURCES})
+add_library(codesLib SHARED ${CODES_SOURCES})
 target_include_directories(codesLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_compile_features(codesLib PUBLIC cxx_strong_enums)

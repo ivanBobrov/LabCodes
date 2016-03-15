@@ -20,6 +20,10 @@ bool CyclicCodesLab::canStartProcess() {
     return state == CodesLabState::READY;
 }
 
+bool CyclicCodesLab::isRunning() {
+    return state == CodesLabState::RUNNING;
+}
+
 void CyclicCodesLab::startProcess(const std::vector<bool> &inform, const std::vector<bool> &generator,
                                   int experimentsCount, double errorProbability) {
     if (state != CodesLabState::READY) {
@@ -49,6 +53,28 @@ void CyclicCodesLab::startProcess(const std::vector<bool> &inform, const std::ve
         CyclicLabTask *task = *it;
         taskRunner->submitTask(*task);
     }
+}
+
+void CyclicCodesLab::breakProcess() {
+    if (state != CodesLabState::RUNNING) {
+        throw std::logic_error("There is no started send process to break");
+    }
+
+    CyclicLabResult lastResult;
+    for (std::vector<CyclicLabTask *>::iterator it = labTaskList->begin(); it < labTaskList->end(); ++it) {
+        CyclicLabTask *task = *it;
+        lastResult.add(task->getResult());
+        task->interrupt();
+    }
+
+    taskRunner->joinAllThreads();
+    view->onBreakProcess(lastResult);
+
+    for (std::vector<CyclicLabTask *>::iterator it = labTaskList->begin(); it < labTaskList->end(); ++it) {
+        delete *it;
+    }
+    labTaskList->clear();
+    state = CodesLabState::READY;
 }
 
 CyclicLabResult CyclicCodesLab::getResult() {

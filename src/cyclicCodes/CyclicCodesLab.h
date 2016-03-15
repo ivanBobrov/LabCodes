@@ -18,6 +18,11 @@ public:
     virtual bool canStartProcess() = 0;
 
     /**
+     * @return true if send process started and not yet finished.
+     */
+    virtual bool isRunning() = 0;
+
+    /**
      * Starts send process for correspondence information and generator
      * polynomials. Make sure <code>inform</code> and <code>generator</code>
      * vectors are stored in little-endian format i.e. lower power first.
@@ -30,6 +35,14 @@ public:
      */
     virtual void startProcess(const std::vector<bool> &inform, const std::vector<bool> &generator,
                               int experimentsCount, double errorProbability) = 0;
+
+    /**
+     * Method immediately stops send process and removes results. It fires
+     * <code>EventListener::onBreakProcess</code> event with last obtained
+     * results as a parameter after interrupting running tasks and joining all
+     * threads.
+     */
+    virtual void breakProcess() = 0;
 
     /**
      * Method for obtaining lab results. It returns result object even if send
@@ -55,7 +68,20 @@ public:
          */
         virtual void onSendProcessFinished(CyclicLabResult result) = 0;
 
+        /**
+         * Event fires when model needs to view status or any other information
+         * to user.
+         *
+         * @param label textual information
+         */
         virtual void setInfo(std::string label) = 0;
+
+        /**
+         * Event fires after all tasks are interrupted and threads joined.
+         *
+         * @param lastObtainedResult
+         */
+        virtual void onBreakProcess(CyclicLabResult lastObtainedResult) = 0;
     };
 
 
@@ -80,8 +106,10 @@ public:
     ~CyclicCodesLab();
 
     virtual bool canStartProcess();
+    virtual bool isRunning();
     virtual void startProcess(const std::vector<bool> &inform, const std::vector<bool> &generator,
                               int experimentsCount, double errorProbability);
+    virtual void breakProcess();
     virtual CyclicLabResult getResult();
     virtual void setEventListener(EventListener *listener);
 
