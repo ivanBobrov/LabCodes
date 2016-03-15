@@ -27,6 +27,10 @@ private:
         virtual void setInfo(std::string label) {
             QMetaObject::invokeMethod(mInstance, "setInfo", Q_ARG(std::string, label));
         }
+
+        virtual void onBreakProcess(CyclicLabResult lastObtainedResult) {
+            QMetaObject::invokeMethod(mInstance, "onSendProcessBreak", Q_ARG(CyclicLabResult, lastObtainedResult));
+        };
     };
 
     static const int UPDATE_TIMER_DELAY_MILLIS = 50;
@@ -37,6 +41,7 @@ private:
     QTimer *updateTimer;
 
     QPushButton *startButton;
+    QPushButton *stopButton;
     QLabel *receivedCorrectlyResult;
     QLabel *experimentsDoneResult;
     QLabel *errorDetectedResult;
@@ -53,14 +58,17 @@ private:
     QGroupBox * createOutputLayout();
 
     void parseBoolVector(std::vector<bool> &output, const QString &text);
+    void showResults(CyclicLabResult &result);
 
 public:
     CyclicCodesWidget(ICyclicCodesLab &lab);
     ~CyclicCodesWidget();
 
 public slots:
-    void onButtonClick();
+    void onButtonStartClick();
+    void onButtonStopClick();
     void onSendProcessFinished(CyclicLabResult result);
+    void onSendProcessBreak(CyclicLabResult result);
     void updateResult();
     void setInfo(std::string label);
 

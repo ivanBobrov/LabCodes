@@ -37,10 +37,6 @@ void CyclicCodesWidget::createLayouts() {
     grid->addWidget(outputLayout, 0, 1, 3, 1);
 
     grid->setAlignment(Qt::AlignCenter);
-    //grid->setSpacing(2);
-    //grid->setHorizontalSpacing(2);
-
-
 
     this->setLayout(grid);
 }
@@ -83,11 +79,14 @@ QGroupBox * CyclicCodesWidget::createCommandLayout() {
     QGridLayout *layout = new QGridLayout;
 
     startButton = new QPushButton("Начать");
-    QObject::connect(startButton, SIGNAL(clicked()), this, SLOT(onButtonClick()));
+    QObject::connect(startButton, SIGNAL(clicked()), this, SLOT(onButtonStartClick()));
+    stopButton = new QPushButton("Остановить"); stopButton->setEnabled(false);
+    QObject::connect(stopButton, SIGNAL(clicked()), this, SLOT(onButtonStopClick()));
     progressBar = new QProgressBar;
 
     layout->addWidget(startButton, 0, 0, 1, 1);
-    layout->addWidget(progressBar, 1, 0, 1, 1);
+    layout->addWidget(stopButton, 0, 1, 1, 1);
+    layout->addWidget(progressBar, 1, 0, 1, 2);
 
     commandBox->setLayout(layout);
     return commandBox;
@@ -127,8 +126,20 @@ void CyclicCodesWidget::parseBoolVector(std::vector<bool> &output, const QString
     }
 }
 
-void CyclicCodesWidget::onButtonClick() {
+void CyclicCodesWidget::showResults(CyclicLabResult &result) {
+    experimentsDoneResult->setText(QString::number(result.getExperimentsDone()));
+    receivedCorrectlyResult->setText(QString::number(result.getReceivedCorrectly()));
+    errorDetectedResult->setText(QString::number(result.getErrorDetected()));
+    errorMissedResult->setText(QString::number(result.getMissedErrors()));
+}
+
+void CyclicCodesWidget::onButtonStartClick() {
+    if (!lab->canStartProcess()) {
+        return;
+    }
+
     startButton->setEnabled(false);
+    stopButton->setEnabled(true);
 
     std::vector<bool> vector;
     QString informationText = informationPolyEdit->text();
@@ -149,25 +160,33 @@ void CyclicCodesWidget::onButtonClick() {
     updateTimer->start(UPDATE_TIMER_DELAY_MILLIS);
 }
 
+void CyclicCodesWidget::onButtonStopClick() {
+    if (lab->isRunning()) {
+        lab->breakProcess();
+    }
+}
+
 void CyclicCodesWidget::onSendProcessFinished(CyclicLabResult result) {
     updateTimer->stop();
     progressBar->setValue(result.getExperimentsDone());
     startButton->setEnabled(true);
+    stopButton->setEnabled(false);
 
-    experimentsDoneResult->setText(QString::number(result.getExperimentsDone()));
-    receivedCorrectlyResult->setText(QString::number(result.getReceivedCorrectly()));
-    errorDetectedResult->setText(QString::number(result.getErrorDetected()));
-    errorMissedResult->setText(QString::number(result.getMissedErrors()));
+    showResults(result);
+}
+
+void CyclicCodesWidget::onSendProcessBreak(CyclicLabResult result) {
+    updateTimer->stop();
+    progressBar->setValue(result.getExperimentsDone());
+    startButton->setEnabled(true);
+    stopButton->setEnabled(false);
+
+    showResults(result);
 }
 
 void CyclicCodesWidget::updateResult() {
     CyclicLabResult result = lab->getResult();
-
-    experimentsDoneResult->setText(QString::number(result.getExperimentsDone()));
-    receivedCorrectlyResult->setText(QString::number(result.getReceivedCorrectly()));
-    errorDetectedResult->setText(QString::number(result.getErrorDetected()));
-    errorMissedResult->setText(QString::number(result.getMissedErrors()));
-
+    showResults(result);
     progressBar->setValue(result.getExperimentsDone());
 }
 
