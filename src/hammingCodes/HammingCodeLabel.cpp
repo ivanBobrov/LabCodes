@@ -5,11 +5,11 @@ HammingCodeLabel::HammingCodeLabel() {
 }
 
 QString HammingCodeLabel::getNormalText(QString &text) {
-    return "<span style='color: #335577; font-size: 18px;'>" + text + "</span>";
+    return "<span style='color: #335577; font-size: 22px;'>" + text + "</span>";
 }
 
 QString HammingCodeLabel::getControlText(QString &text) {
-    return "<span style='color: #aa5533; font-size: 18px;'>" + text + "</span>";
+    return "<span style='color: #aa5533; font-size: 22px;'>" + text + "</span>";
 }
 
 void HammingCodeLabel::setMessage(std::vector<bool> &message) {
