@@ -60,12 +60,11 @@ void HammingLabWidget::onSendProcessFinished(const HammingLabResult &results) {
 
 void HammingLabWidget::onInformationMessageChanged(std::vector<bool> &infoMessage, std::vector<bool> &codedMessage) {
     QString infoString = QString::fromStdString(boolArrayToString(infoMessage));
-    QString codedString = QString::fromStdString(boolArrayToString(codedMessage));
 
     if (!infoString.isEmpty()) {
         informationMessageDisplay->setStyleSheet("");
         informationMessageDisplay->setText(infoString);
-        codedMessageDisplay->setText(codedString);
+        codedMessageDisplay->setMessage(codedMessage);
 
         setStatusInfo("Information message changed: " + infoString);
     } else {
@@ -228,8 +227,7 @@ QGroupBox * HammingLabWidget::createStatisticsLayout() {
 
     informationMessageDisplay = new QLabel();
     informationMessageDisplay->setFont(bigFont);
-    codedMessageDisplay = new QLabel();
-    codedMessageDisplay->setFont(bigFont);
+    codedMessageDisplay = new HammingCodeLabel;
     doneAttempts = new QLabel("0");
     rightReceived = new QLabel("0");
     repairedCount = new QLabel("0");

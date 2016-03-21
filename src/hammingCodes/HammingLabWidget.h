@@ -6,6 +6,7 @@
 #include <string>
 #include "HammingLabEventEmitter.h"
 #include "HammingCodesLab.h"
+#include "HammingCodeLabel.h"
 
 Q_DECLARE_METATYPE(HammingLabResult)
 
@@ -25,7 +26,7 @@ private:
     QLineEdit *probabilityLineEdit;
     QLineEdit *attemptsCountLineEdit;
     QLabel *informationMessageDisplay;
-    QLabel *codedMessageDisplay;
+    HammingCodeLabel *codedMessageDisplay;
     QLabel *doneAttempts;
     QLabel *rightReceived;
     QLabel *repairedCount;

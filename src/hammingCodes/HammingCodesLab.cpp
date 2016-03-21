@@ -55,7 +55,7 @@ void HammingCodesLab::setInformationMessage(std::vector<bool> &infoMessage) {
         codedMessage->clear();
     } else {
         information->clear();
-        for (std::vector<bool>::reverse_iterator it = infoMessage.rbegin(); it != infoMessage.rend(); it++) {
+        for (std::vector<bool>::iterator it = infoMessage.begin(); it != infoMessage.end(); it++) {
             information->appendBit(*it);
         }
 
