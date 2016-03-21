@@ -1,12 +1,13 @@
 #include <QApplication>
 #include <QWidget>
 #include "HammingLabWidget.h"
+#include "MainWindow.h"
 
 int main(int argc, char *argv[]) {
 	QApplication application(argc, argv);
 
-	HammingLabWidget widget;
-	widget.show();
+	MainWindow mainWindow;
+	mainWindow.show();
 
 	return application.exec();
 }

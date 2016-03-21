@@ -18,7 +18,7 @@ HammingLabWidget::HammingLabWidget() {
                      this, SLOT(onSendProcessFinished(const HammingLabResult&)));
 
     hammingCodesLab = HammingCodesLab::createInstance(eventEmitter);
-    statusBar->showMessage("Ready");
+    setStatusInfo("Ready");
 }
 
 void HammingLabWidget::onStartProcess() {
@@ -29,19 +29,19 @@ void HammingLabWidget::onStartProcess() {
     probabilityLineEdit->setEnabled(false);
     attemptsCountLineEdit->setEnabled(false);
 
-    statusBar->showMessage("Send process started");
+    setStatusInfo("Send process started");
 }
 
 void HammingLabWidget::onPauseProcess() {
     buttonPause->setEnabled(false);
     buttonResume->setEnabled(true);
-    statusBar->showMessage("Send process paused");
+    setStatusInfo("Send process paused");
 }
 
 void HammingLabWidget::onResumeProcess() {
     buttonResume->setEnabled(false);
     buttonPause->setEnabled(true);
-    statusBar->showMessage("Send process resumed");
+    setStatusInfo("Send process resumed");
 }
 
 void HammingLabWidget::onSendProcessFinished(const HammingLabResult &results) {
@@ -55,7 +55,7 @@ void HammingLabWidget::onSendProcessFinished(const HammingLabResult &results) {
     buttonPause->setEnabled(false);
     buttonResume->setEnabled(false);
     buttonClear->setEnabled(false);
-    statusBar->showMessage("Send process successfully done");
+    setStatusInfo("Send process successfully done");
 }
 
 void HammingLabWidget::onInformationMessageChanged(std::vector<bool> &infoMessage, std::vector<bool> &codedMessage) {
@@ -67,23 +67,23 @@ void HammingLabWidget::onInformationMessageChanged(std::vector<bool> &infoMessag
         informationMessageDisplay->setText(infoString);
         codedMessageDisplay->setText(codedString);
 
-        statusBar->showMessage("Information message changed: " + infoString);
+        setStatusInfo("Information message changed: " + infoString);
     } else {
         informationMessageDisplay->setStyleSheet("color: lightgrey");
         informationMessageDisplay->setText("insert message polynomial");
         codedMessageDisplay->setText("");
 
-        statusBar->showMessage("Information message cleared");
+        setStatusInfo("Information message cleared");
     }
 
 }
 
 void HammingLabWidget::onProbabilityChanged(double newProbability) {
-    statusBar->showMessage("Probability changed: " + QString::number(newProbability));
+    setStatusInfo("Probability changed: " + QString::number(newProbability));
 }
 
 void HammingLabWidget::onAttemptsCountChanged(int newAttemptsCount) {
-    statusBar->showMessage("Attempts count changed: " + QString::number(newAttemptsCount));
+    setStatusInfo("Attempts count changed: " + QString::number(newAttemptsCount));
 }
 
 void HammingLabWidget::onResultsChanged(const HammingLabResult &results) {
@@ -138,7 +138,6 @@ void HammingLabWidget::createLayouts() {
     mainLayout->addWidget(createControlLayout(), 1, 0, 1, 1);
     mainLayout->addWidget(createStatisticsLayout(), 2, 0, 1, 1);
     mainLayout->addWidget(createConclusionLayout(), 3, 0, 1, 1);
-    mainLayout->addWidget(createStatusBarLayout(), 5, 0, 1, 1);
 
     //mainLayout->setRowStretch(4, 1);
 
@@ -255,24 +254,6 @@ QGroupBox * HammingLabWidget::createConclusionLayout() {
     return new QGroupBox("4. Сделайте выводы");
 }
 
-QGroupBox * HammingLabWidget::createStatusBarLayout() {
-    QFont smallFont("Arial", 9);
-
-    QGroupBox *statusGroupBox = new QGroupBox;
-    QHBoxLayout *statusBoxLayout = new QHBoxLayout;
-
-    statusBar = new QStatusBar;
-    statusBar->setFont(smallFont);
-
-    statusBar->showMessage("Ready");
-    statusBoxLayout->addWidget(statusBar);
-
-    statusGroupBox->setLayout(statusBoxLayout);
-    statusGroupBox->setMaximumSize(700, 60);
-
-    return statusGroupBox;
-}
-
 std::string HammingLabWidget::boolArrayToString(std::vector<bool> &array) {
     std::string result;
     for (std::vector<bool>::reverse_iterator it = array.rbegin(); it < array.rend(); it++) {
@@ -284,7 +265,7 @@ std::string HammingLabWidget::boolArrayToString(std::vector<bool> &array) {
 
 std::vector<bool> HammingLabWidget::parseInformationMessageText(const QString &text) {
     std::vector<bool> result;
-    for (int i = 0; i < text.length(); i++) {
+    for (int i = text.length() - 1; i >= 0; i--) {
         QChar symbol = text[i];
         if (symbol == '0') {
             result.push_back(false);
@@ -294,4 +275,8 @@ std::vector<bool> HammingLabWidget::parseInformationMessageText(const QString &t
     }
 
     return result;
+}
+
+void HammingLabWidget::setStatusInfo(QString message) {
+    emit statusInfo(message);
 }

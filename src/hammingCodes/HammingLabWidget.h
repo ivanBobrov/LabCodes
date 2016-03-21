@@ -30,7 +30,6 @@ private:
     QLabel *rightReceived;
     QLabel *repairedCount;
     QLabel *errorMissed;
-    QStatusBar *statusBar;
     QProgressBar *progressBar;
 
     void createLayouts();
@@ -38,12 +37,15 @@ private:
     QGroupBox * createControlLayout();
     QGroupBox * createStatisticsLayout();
     QGroupBox * createConclusionLayout();
-    QGroupBox * createStatusBarLayout();
     std::string boolArrayToString(std::vector<bool> &array);
     std::vector<bool> parseInformationMessageText(const QString &text);
+    void setStatusInfo(QString message);
 
 public:
     HammingLabWidget();
+
+signals:
+    void statusInfo(QString message);
 
 public slots:
     void onStartButtonClick();

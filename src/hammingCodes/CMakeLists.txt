@@ -1,5 +1,7 @@
 set(LAB_SOURCE
     main.cpp
+	MainWindow.cpp
+	AboutWindow.cpp
     HammingCodesLab.cpp
     HammingLabWidget.cpp
     HammingLabProcessor.cpp
