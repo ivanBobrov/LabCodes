@@ -52,6 +52,8 @@ void CyclicLabTask::task() {
 
         statisticsMutex.unlock();
 
+        boost::this_thread::interruption_point();
+
         interruptionMutex.lock();
         bool interrupt = interruptionFlag;
         interruptionMutex.unlock();

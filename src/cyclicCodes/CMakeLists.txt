@@ -1,11 +1,14 @@
 set(LAB_SOURCE
         main.cpp
+        MainWindow.cpp
+        AboutWindow.cpp
         CyclicCodesWidget.cpp
         CyclicCodesLab.cpp
         LabTaskRunner.cpp
         CyclicLabResult.cpp
         CyclicLabTask.cpp
         CyclicPolynomialLabel.cpp
+        BarChartWidget.cpp
         )
 
 if (Boost_FOUND)

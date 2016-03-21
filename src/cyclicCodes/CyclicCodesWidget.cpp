@@ -11,8 +11,12 @@ CyclicCodesWidget::CyclicCodesWidget(ICyclicCodesLab &lab) : lab(&lab) {
     updateTimer = new QTimer(this);
     connect(updateTimer, SIGNAL(timeout()), this, SLOT(updateResult()));
 
+    setInfo("Подготовка");
+
     createLayouts();
     onInputChanged();
+
+    setInfo("Готово");
 }
 
 CyclicCodesWidget::~CyclicCodesWidget() {
@@ -26,6 +30,9 @@ void CyclicCodesWidget::createLayouts() {
     QGroupBox *commandLayout = createCommandLayout();
     QGroupBox *outputLayout = createOutputLayout();
 
+    QString labels[] = {"1", "2", "3" , "4", "5", ">5"};
+    chartWidget = new BarChartWidget(labels, 6);
+
     inputBox->setMinimumWidth(400);
     inputBox->setMaximumWidth(600);
     commandLayout->setMinimumWidth(400);
@@ -33,10 +40,10 @@ void CyclicCodesWidget::createLayouts() {
     outputLayout->setMinimumWidth(500);
     outputLayout->setMaximumWidth(700);
 
-    grid->addWidget(inputBox, 0, 0, 2, 1);
-    grid->addWidget(commandLayout, 2, 0, 1, 1);
-    grid->addWidget(outputLayout, 0, 1, 3, 1);
-
+    grid->addWidget(inputBox, 0, 0, 1, 1);
+    grid->addWidget(commandLayout, 1, 0, 1, 1);
+    grid->addWidget(outputLayout, 0, 1, 1, 1);
+    grid->addWidget(chartWidget, 1, 1, 1, 1);
     grid->setAlignment(Qt::AlignCenter);
 
     this->setLayout(grid);
@@ -124,6 +131,7 @@ QGroupBox * CyclicCodesWidget::createOutputLayout() {
     formLayout->addRow(errorMissedLabel, errorMissedResult);
 
     outputBox->setLayout(formLayout);
+
     return outputBox;
 }
 
@@ -145,12 +153,21 @@ void CyclicCodesWidget::showResults(CyclicLabResult &result) {
     errorDetectedResult->setText(QString::number(result.getErrorDetected()));
     errorMissedResult->setText(QString::number(result.getMissedErrorsUnrated()));
 
+    std::vector<int> barValues(BarChartWidget::BAR_COUNT, 0);
+    barValues.at(0) = result.getMissedErrorsOutOfRate();
+    for (int i = 1; i < BarChartWidget::BAR_COUNT; i++) {
+        barValues.at((unsigned long) i) = result.getMissedErrors(i);
+    }
+
+    chartWidget->setValues(barValues);
 }
 
 void CyclicCodesWidget::onButtonStartClick() {
     if (!lab->canStartProcess()) {
         return;
     }
+
+    setInfo("Подготовка к передаче");
 
     startButton->setEnabled(false);
     stopButton->setEnabled(true);
@@ -172,10 +189,13 @@ void CyclicCodesWidget::onButtonStartClick() {
     progressBar->setValue(0);
 
     updateTimer->start(UPDATE_TIMER_DELAY_MILLIS);
+
+    setInfo("Передача сообщений");
 }
 
 void CyclicCodesWidget::onButtonStopClick() {
     if (lab->isRunning()) {
+        setInfo("Остановка процесса передачи");
         lab->breakProcess();
     }
 }
@@ -198,6 +218,7 @@ void CyclicCodesWidget::onSendProcessFinished(CyclicLabResult result) {
     stopButton->setEnabled(false);
 
     showResults(result);
+    setInfo("Готово");
 }
 
 void CyclicCodesWidget::onSendProcessBreak(CyclicLabResult result) {
@@ -207,6 +228,7 @@ void CyclicCodesWidget::onSendProcessBreak(CyclicLabResult result) {
     stopButton->setEnabled(false);
 
     showResults(result);
+    setInfo("Готово");
 }
 
 void CyclicCodesWidget::updateResult() {
@@ -217,5 +239,5 @@ void CyclicCodesWidget::updateResult() {
 
 void CyclicCodesWidget::setInfo(std::string text) {
     QString string = QString::fromUtf8(text.c_str());
-    this->setWindowTitle(string);
+    emit statusInformation(string);
 }

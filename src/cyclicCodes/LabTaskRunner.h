@@ -37,6 +37,7 @@ public:
     ~LabTaskRunner();
 
     void submitTask(LabTask& task);
+    void interruptAllThreads();
     void removeFinishedThread();
     void joinAllThreads();
 };

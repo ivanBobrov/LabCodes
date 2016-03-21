@@ -25,6 +25,7 @@ LabTaskRunner::LabTaskRunner() {
 }
 
 LabTaskRunner::~LabTaskRunner() {
+    interruptAllThreads();
     joinAllThreads();
     delete threadList;
 }
@@ -33,6 +34,13 @@ void LabTaskRunner::submitTask(LabTask &task) {
     boost::thread *worker = new boost::thread(boost::bind(&LabTask::run, &task));
     threadList->push_back(worker);
     removeFinishedThread();
+}
+
+void LabTaskRunner::interruptAllThreads() {
+    for (std::vector<boost::thread *>::iterator it = threadList->begin(); it < threadList->end(); ++it) {
+        boost::thread *worker = *it;
+        worker->interrupt();
+    }
 }
 
 void LabTaskRunner::removeFinishedThread() {

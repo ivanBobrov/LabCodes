@@ -1,17 +1,19 @@
 #include <QApplication>
 #include <QWidget>
 
-#include "CyclicCodesWidget.h"
-#include "CyclicCodesLab.h"
+#include "MainWindow.h"
 
 int main(int argc, char *argv[]) {
     QApplication application(argc, argv);
 
-    CyclicCodesLab model;
+    /*CyclicCodesLab model;
     model.setNumberOfThreadsToUse(4);
 
     CyclicCodesWidget widget(model);
-    widget.show();
+    widget.show();*/
+
+    MainWindow mainWindow;
+    mainWindow.show();
 
     return application.exec();
 }
